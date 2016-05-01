@@ -1,0 +1,14 @@
+{
+	"web_server": {
+		"ip": "0.0.0.0",
+		"port": 3000
+	},
+	"cache": {
+		"directory": ".cache",
+		"refresh_after": 86400,
+		"refresh_on_miss": true
+	},
+	"credentials": {
+		"riot_api_key": ""
+	}
+}

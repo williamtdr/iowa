@@ -36,6 +36,9 @@ jspm_packages
 # Optional REPL history
 .node_repl_history
 
+# Project
+config/config.json
+
 # Common IDEs
 .idea/*
 .nbproject/*
@@ -46,4 +49,3 @@ Desktop.ini
 
 # Mac Crap
 .DS_Store
-

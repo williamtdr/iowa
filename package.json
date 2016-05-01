@@ -6,13 +6,16 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
   "author": "williamtdr & Kellvas",
   "license": "UNLICENSED",
   "dependencies": {
     "express": "^4.13.4",
     "express-handlebars": "^3.0.0",
+    "lodash.get": "^4.2.1",
+    "lodash.set": "^4.1.0",
     "websocket": "^1.0.22"
   },
-  { "engines" : { "node" : ">=0.10.3 <0.12" } }
+  "engines": {
+    "node": ">=4.0.0"
+  }
 }
