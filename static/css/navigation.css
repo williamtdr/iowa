@@ -1,0 +1,27 @@
+nav {
+	z-index: 2000000;
+	padding: 15px;
+	width: 100%;
+	height: 60px;
+	border-bottom: #BDC3C7 1px solid;
+}
+
+nav hr {
+	border-color: #BDC3C7;
+}
+
+#logo {
+	float: left;
+	font-family: "Raleway", sans-serif;
+	font-weight: 300;
+}
+
+#logo_top {
+	font-size: 2.2em;
+}
+
+#logo_bottom {
+	font-size: 0.8em;
+	display: block;
+	color: #95A5A6;
+}
