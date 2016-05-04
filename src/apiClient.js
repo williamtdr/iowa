@@ -10,12 +10,13 @@
  * Cache files can normally be found in .cache and are saved for one day.
  * This behavior can be changed by modifying config.json.
  *
- * Last updated: May 3rd, 2016
+ * Last updated: May 4th, 2016. All endpoints were tested at time of writing.
  */
 
 /*
  * TODO
  * [ ] Finish implementing API methods
+ * [ ] Test all API methods
  * [ ] Caching for queries that take multiple summoner ids
  * [ ] Cache higher levels (e.g. whole champion list -> individual champions)
  * [ ] Cache expiration (including on individual endpoints)
@@ -100,13 +101,13 @@ var client = new Client({
  */
 var CacheEngine = {
 	data: {},
-	hitOr: (callback, id, on_miss) => {
+	hitOr: (callback, id, onMiss) => {
 		if(CacheEngine.data[id])
 			return callback(CacheEngine.data[id]);
 
 		fs.readJSON(global.user_config.get("cache.directory") + "/" + id + ".json", "utf8", (err, data) => {
 			if(err) {
-				on_miss((data) => {
+				onMiss((data) => {
 					CacheEngine.save(id, data);
 					callback(data);
 				});
@@ -131,8 +132,8 @@ var CacheEngine = {
 var requestor = (callback, info) => {
 	var retrieve = (callback) => {
 		var args = {
-			path: info.path_parameters || {},
-			parameters: info.query_parameters || {}
+			path: info.pathParameters || {},
+			parameters: info.queryParameters || {}
 		}, key;
 
 		for(key in args.path)
@@ -145,33 +146,33 @@ var requestor = (callback, info) => {
 
 		args.parameters.api_key = global.user_config.get("credentials.riot_api_key");
 
-		var req = client[info.method || "get"]("https://" + regionData[info.region].host + info.path, args, (data, response) => {
+		var req = client[info.method || "get"](info.fullPath || "https://" + regionData[info.region].host + info.path, args, (data, response) => {
 			if(response.statusCode !== 200) {
-				var callback_reply = {
+				var callbackReply = {
 					type: "error",
 					code: response.statusCode
 				};
 
 				switch(response.statusCode) {
 					case 400:
-						callback_reply.text = "Bad request.";
+						callbackReply.text = "Bad request.";
 					break;
 					case 401:
-						callback_reply.text = "Authorization failure.";
+						callbackReply.text = "Authorization failure.";
 						console.warn("Warning: Received an authentication error from Riot's API servers. Make sure your API key is correct.");
 					break;
 					case 404:
-						callback_reply.text = "Resource not found.";
+						callbackReply.text = "Resource not found.";
 					break;
 					case 429:
 						return setTimeout(() => retrieve(callback), (response.headers["Retry-After"] * 1000)); // todo: handle this better
 					break;
 					case 500:
-						callback_reply.text = "The API encountered an internal server error.";
+						callbackReply.text = "The API encountered an internal server error.";
 					break;
 				}
 
-				callback(callback_reply);
+				callback(callbackReply);
 			} else
 				callback(data);
 		});
@@ -199,8 +200,8 @@ var requestor = (callback, info) => {
 		});
 	};
 
-	if(info.cache && info.cache_identifier)
-		CacheEngine.hitOr(callback, info.cache_identifier, retrieve);
+	if(info.cache && info.cacheIdentifier)
+		CacheEngine.hitOr(callback, info.cacheIdentifier, retrieve);
 	else
 		retrieve(callback);
 };
@@ -220,12 +221,12 @@ module.exports.api = {
 			requestor(callback, {
 				region: options.region,
 				cache: options.cache !== undefined ? options.cache : true,
+				cacheIdentifier: "champion/" + id + "_" + options.region,
 				path: "/api/lol/${region}/v1.2/champion/${id}",
-				path_parameters: {
+				pathParameters: {
 					region: options.region,
 					id: id
-				},
-				cache_identifier: "champion/" + id
+				}
 			});
 		},
 		// Retrieve all champions.
@@ -235,14 +236,14 @@ module.exports.api = {
 			requestor(callback, {
 				region: options.region,
 				cache: options.cache !== undefined ? options.cache : freeToPlay !== true,
+				cacheIdentifier: freeToPlay ? "champion_ftp_" + options.region : "champion_" + options.region,
 				path: "/api/lol/${region}/v1.2/champion",
-				path_parameters: {
+				pathParameters: {
 					region: options.region
 				},
-				query_parameters: {
+				queryParameters: {
 					freeToPlay: freeToPlay
-				},
-				cache_identifier: freeToPlay ? "champion_ftp" : "champion"
+				}
 			});
 		}
 	},
@@ -260,13 +261,13 @@ module.exports.api = {
 			requestor(callback, {
 				region: options.region,
 				cache: options.cache !== undefined ? options.cache : true,
+				cacheIdentifier: "summoner/" + summonerId + "/championMastery/byChampion/" + championId,
 				path: "/championmastery/location/${platformId}/player/${playerId}/champion/${championId}",
-				path_parameters: {
+				pathParameters: {
 					platformId: regionData[options.region].id,
 					playerId: summonerId,
 					championId: championId
-				},
-				cache_identifier: summonerId + "/championMastery/byChampion/" + championId
+				}
 			});
 		},
 		// Get all champion mastery entries sorted by number of champion points descending.
@@ -274,12 +275,12 @@ module.exports.api = {
 			requestor(callback, {
 				region: options.region,
 				cache: options.cache !== undefined ? options.cache : true,
+				cacheIdentifier: "summoner/" + summonerId + "/championMastery/all",
 				path: "/championmastery/location/${platformId}/player/${playerId}/champions",
-				path_parameters: {
+				pathParameters: {
 					platformId: regionData[options.region].id,
 					playerId: summonerId
-				},
-				cache_identifier: summonerId + "/championMastery/all"
+				}
 			});
 		},
 		// Get a player's total champion mastery score, which is sum of individual champion mastery levels.
@@ -287,12 +288,12 @@ module.exports.api = {
 			requestor(callback, {
 				region: options.region,
 				cache: options.cache !== undefined ? options.cache : true,
+				cacheIdentifier: "summoner/" + summonerId + "/championMastery/score",
 				path: "/championmastery/location/${platformId}/player/${playerId}/score",
-				path_parameters: {
+				pathParameters: {
 					platformId: regionData[options.region].id,
 					playerId: summonerId
-				},
-				cache_identifier: summonerId + "/championMastery/score"
+				}
 			});
 		},
 		// Get specified number of top champion mastery entries sorted by number of champion points descending.
@@ -300,15 +301,15 @@ module.exports.api = {
 			requestor(callback, {
 				region: options.region,
 				cache: options.cache !== undefined ? options.cache : true,
+				cacheIdentifier: "summoner/" + summonerId + "/championMastery/top",
 				path: "/championmastery/location/${platformId}/player/${playerId}/topchampions",
-				path_parameters: {
+				pathParameters: {
 					platformId: regionData[options.region].id,
 					playerId: summonerId
 				},
-				query_parameters: {
+				queryParameters: {
 					count: count
-				},
-				cache_identifier: summonerId + "/championMastery/top"
+				}
 			});
 		}
 	},
@@ -324,7 +325,7 @@ module.exports.api = {
 		requestor(callback, {
 			region: options.region,
 			path: "/observer-mode/rest/consumer/getSpectatorGameInfo/${platformId}/${summonerId}",
-			path_parameters: {
+			pathParameters: {
 				platformId: regionData[options.region].id,
 				summonerId: summonerId
 			}
@@ -354,12 +355,12 @@ module.exports.api = {
 		requestor(callback, {
 			region: options.region,
 			cache: options.cache !== undefined ? options.cache : false,
+			cacheIdentifier: "summoner/" + summonerId + "/games",
 			path: "/api/lol/${region}/v1.3/game/by-summoner/${summonerId}/recent",
-			path_parameters: {
+			pathParameters: {
 				region: options.region,
 				summonerId: summonerId
-			},
-			cache_identifier: summonerId + "/games"
+			}
 		});
 	},
 	/**
@@ -378,7 +379,7 @@ module.exports.api = {
 			requestor(callback, {
 				region: options.region,
 				path: "/api/lol/${region}/v2.5/league/by-summoner/${summonerIds}",
-				path_parameters: {
+				pathParameters: {
 					region: options.region,
 					summonerIds: summonerIds
 				}
@@ -392,7 +393,7 @@ module.exports.api = {
 			requestor(callback, {
 				region: options.region,
 				path: "/api/lol/${region}/v2.5/league/by-summoner/${summonerIds}/entry",
-				path_parameters: {
+				pathParameters: {
 					region: options.region,
 					summonerIds: summonerIds
 				}
@@ -406,7 +407,7 @@ module.exports.api = {
 			requestor(callback, {
 				region: options.region,
 				path: "/api/lol/${region}/v2.5/league/by-team/${teamIds}",
-				path_parameters: {
+				pathParameters: {
 					region: options.region,
 					teamIds: teamIds
 				}
@@ -420,7 +421,7 @@ module.exports.api = {
 			requestor(callback, {
 				region: options.region,
 				path: "/api/lol/${region}/v2.5/league/by-team/${teamIds}/entry",
-				path_parameters: {
+				pathParameters: {
 					region: options.region,
 					teamIds: teamIds
 				}
@@ -428,91 +429,432 @@ module.exports.api = {
 		},
 		// Get challenger tier leagues
 		challenger: (callback, type, options) => {
-
+			requestor(callback, {
+				region: options.region,
+				cache: options.cache === undefined ? true : options.cache,
+				cacheIdentifier: "league/challenger_" + options.region,
+				path: "/api/lol/${region}/v2.5/league/challenger",
+				pathParameters: {
+					region: options.region
+				},
+				queryParameters: {
+					type: type
+				}
+			});
 		},
 		// Get master tier leagues.
 		master: (callback, type, options) => {
-
+			requestor(callback, {
+				region: options.region,
+				cache: options.cache === undefined ? true : options.cache,
+				cacheIdentifier: "league/master_" + options.region,
+				path: "/api/lol/${region}/v2.5/league/master",
+				pathParameters: {
+					region: options.region
+				},
+				queryParameters: {
+					type: type
+				}
+			});
 		}
 	},
 	/**
-	 * Gets static information about the game like a current defailed champion list,
+	 * Gets static information about the game like a current detailed champion list,
 	 * runes, masteries, items, language data, summoner spells and version. Not rate
 	 * limited.
 	 *
 	 * Docs URL: https://developer.riotgames.com/api/methods#!/1055
+	 * Cached: Default on
 	 */
 	static_data: {
 		// Retrieves champion list.
 		championAll: (callback, locale, version, dataById, champData, options) => {
+			var cacheIdentifier = "static/" + options.region + "/champions/champions";
+			if(typeof locale === "string")
+				cacheIdentifier += "_" + locale;
 
+			if(typeof version === "string")
+				cacheIdentifier += "_" + version;
+
+			if(dataById)
+				cacheIdentifier += "_by_id";
+
+			if(Array.isArray(champData))
+				cacheIdentifier += "_" + champData.join("-");
+
+			cacheIdentifier += "_" + options.region;
+
+			requestor(callback, {
+				region: options.region,
+				cache: options.cache === undefined ? true : options.cache,
+				cacheIdentifier: cacheIdentifier,
+				path: "/api/lol/static-data/${region}/v1.2/champion",
+				pathParameters: {
+					region: options.region
+				},
+				queryParameters: {
+					locale: locale,
+					version: version,
+					dataById: dataById,
+					champData: Array.isArray(champData) ? champData.join(",") : undefined
+				}
+			});
 		},
 		// Retrieves a champion by its id.
 		championOne: (callback, id, locale, version, champData, options) => {
+			var cacheIdentifier = "static/" + options.region + "/champions/champion/" + id;
+			if(typeof locale === "string")
+				cacheIdentifier += "_" + locale;
 
+			if(typeof version === "string")
+				cacheIdentifier += "_" + version;
+
+			if(Array.isArray(champData))
+				cacheIdentifier += "_" + champData.join("-");
+
+			cacheIdentifier += "_" + options.region;
+
+			requestor(callback, {
+				region: options.region,
+				cache: options.cache === undefined ? true : options.cache,
+				cacheIdentifier: cacheIdentifier,
+				path: "/api/lol/static-data/${region}/v1.2/champion/${id}",
+				pathParameters: {
+					region: options.region,
+					id: id
+				},
+				queryParameters: {
+					locale: locale,
+					version: version,
+					champData: Array.isArray(champData) ? champData.join(",") : undefined
+				}
+			});
 		},
 		// Retrieves item list.
 		itemAll: (callback, locale, version, itemListData, options) => {
+			var cacheIdentifier = "static/" + options.region + "/items/items";
+			if(typeof locale === "string")
+				cacheIdentifier += "_" + locale;
 
+			if(typeof version === "string")
+				cacheIdentifier += "_" + version;
+
+			if(Array.isArray(itemListData))
+				cacheIdentifier += "_" + itemListData.join("-");
+
+			cacheIdentifier += "_" + options.region;
+
+			requestor(callback, {
+				region: options.region,
+				cache: options.cache === undefined ? true : options.cache,
+				cacheIdentifier: cacheIdentifier,
+				path: "/api/lol/static-data/${region}/v1.2/item",
+				pathParameters: {
+					region: options.region
+				},
+				queryParameters: {
+					locale: locale,
+					version: version,
+					itemListData: Array.isArray(itemListData) ? itemListData.join(",") : undefined
+				}
+			});
 		},
 		// Retrieves item by its unique id
 		itemOne: (callback, id, locale, version, itemData, options) => {
+			var cacheIdentifier = "static/" + options.region + "/items/item/" + id;
+			if(typeof locale === "string")
+				cacheIdentifier += "_" + locale;
 
+			if(typeof version === "string")
+				cacheIdentifier += "_" + version;
+
+			if(Array.isArray(itemData))
+				cacheIdentifier += "_" + itemData.join("-");
+
+			requestor(callback, {
+				region: options.region,
+				cache: options.cache === undefined ? true : options.cache,
+				cacheIdentifier: cacheIdentifier,
+				path: "/api/lol/static-data/${region}/v1.2/item/${id}",
+				pathParameters: {
+					region: options.region,
+					id: id
+				},
+				queryParameters: {
+					locale: locale,
+					version: version,
+					itemData: Array.isArray(itemData) ? itemData.join(",") : undefined
+				}
+			});
 		},
 		// Retrieve language strings data
 		languageStrings: (callback, locale, version, options) => {
+			var cacheIdentifier = "static/" + options.region + "/language/strings/strings";
+			if(typeof locale === "string")
+				cacheIdentifier += "_" + locale;
 
+			if(typeof version === "string")
+				cacheIdentifier += "_" + version;
+
+			requestor(callback, {
+				region: options.region,
+				cache: options.cache === undefined ? true : options.cache,
+				cacheIdentifier: cacheIdentifier,
+				path: "/api/lol/static-data/${region}/v1.2/language-strings",
+				pathParameters: {
+					region: options.region
+				},
+				queryParameters: {
+					locale: locale,
+					version: version
+				}
+			});
 		},
 		// Retrieve supported languages data.
 		languages: (callback, options) => {
-
+			requestor(callback, {
+				region: options.region,
+				cache: options.cache === undefined ? true : options.cache,
+				cacheIdentifier: "static/" + options.region + "/language/languages",
+				path: "/api/lol/static-data/${region}/v1.2/languages",
+				pathParameters: {
+					region: options.region
+				}
+			});
 		},
 		// Retrieve map data.
 		map: (callback, locale, version, options) => {
+			var cacheIdentifier = "static/" + options.region + "/map";
+			if(typeof locale === "string")
+				cacheIdentifier += "_" + locale;
 
+			if(typeof version === "string")
+				cacheIdentifier += "_" + version;
+
+			requestor(callback, {
+				region: options.region,
+				cache: options.cache === undefined ? true : options.cache,
+				cacheIdentifier: cacheIdentifier,
+				path: "/api/lol/static-data/${region}/v1.2/map",
+				pathParameters: {
+					region: options.region
+				},
+				queryParameters: {
+					locale: locale,
+					version: version
+				}
+			});
 		},
 		// Retrieves mastery list.
 		mastery: (callback, locale, version, masteryListData, options) => {
+			var cacheIdentifier = "static/" + options.region + "/mastery/masteries";
+			if(typeof locale === "string")
+				cacheIdentifier += "_" + locale;
 
+			if(typeof version === "string")
+				cacheIdentifier += "_" + version;
+
+			if(Array.isArray(masteryListData))
+				cacheIdentifier += "_" + masteryListData.join("-");
+
+			requestor(callback, {
+				region: options.region,
+				cache: options.cache === undefined ? true : options.cache,
+				cacheIdentifier: cacheIdentifier,
+				path: "/api/lol/static-data/${region}/v1.2/mastery",
+				pathParameters: {
+					region: options.region
+				},
+				queryParameters: {
+					locale: locale,
+					version: version,
+					masteryListData: Array.isArray(masteryListData) ? masteryListData.join(",") : undefined
+				}
+			});
 		},
-		// Retrieve realm data.
-		realm: (callback, options) => {
+		masteryById: (callback, id, locale, version, masteryData, options) => {
+			var cacheIdentifier = "static/" + options.region + "/mastery/mastery/" + id;
+			if(typeof locale === "string")
+				cacheIdentifier += "_" + locale;
 
+			if(typeof version === "string")
+				cacheIdentifier += "_" + version;
+
+			if(Array.isArray(masteryData))
+				cacheIdentifier += "_" + masteryData.join("-");
+
+			requestor(callback, {
+				region: options.region,
+				cache: options.cache === undefined ? true : options.cache,
+				cacheIdentifier: cacheIdentifier,
+				path: "/api/lol/static-data/${region}/v1.2/mastery/${id}",
+				pathParameters: {
+					region: options.region,
+					id: id
+				},
+				queryParameters: {
+					locale: locale,
+					version: version,
+					masteryData: masteryData
+				}
+			});
+		},
+		// Retrieve realm data, including CDN paths for web assets.
+		realm: (callback, options) => {
+			requestor(callback, {
+				region: options.region,
+				cache: options.cache === undefined ? true : options.cache,
+				cacheIdentifier: "/static/" + options.region + "/realm",
+				path: "/api/lol/static-data/${region}/v1.2/realm",
+				pathParameters: {
+					region: options.region
+				}
+			});
 		},
 		// Retrieves rune list.
 		rune: (callback, locale, version, runeListData, options) => {
+			var cacheIdentifier = "static/" + options.region + "/runes/runes";
+			if(typeof locale === "string")
+				cacheIdentifier += "_" + locale;
 
+			if(typeof version === "string")
+				cacheIdentifier += "_" + version;
+
+			if(Array.isArray(runeListData))
+				cacheIdentifier += "_" + runeListData.join("-");
+
+			requestor(callback, {
+				region: options.region,
+				cache: options.cache === undefined ? true : options.cache,
+				cacheIdentifier: cacheIdentifier,
+				path: "/api/lol/static-data/${region}/v1.2/rune",
+				pathParameters: {
+					region: options.region
+				},
+				queryParameters: {
+					runeListData: Array.isArray(runeListData) ? runeListData.join(",") : undefined,
+					locale: locale,
+					version: version
+				}
+			});
 		},
 		// Retrieves rune by its unique id.
 		runeById: (callback, id, locale, version, runeData, options) => {
+			var cacheIdentifier = "static/" + options.region + "/runes/rune/" + id;
+			if(typeof locale === "string")
+				cacheIdentifier += "_" + locale;
 
+			if(typeof version === "string")
+				cacheIdentifier += "_" + version;
+
+			if(Array.isArray(runeData))
+				cacheIdentifier += "_" + runeData.join("-");
+
+			requestor(callback, {
+				region: options.region,
+				cache: options.cache === undefined ? true : options.cache,
+				cacheIdentifier: cacheIdentifier,
+				path: "/api/lol/static-data/${region}/v1.2/rune/${id}",
+				pathParameters: {
+					region: options.region,
+					id: id
+				},
+				queryParameters: {
+					runeListData: Array.isArray(runeData) ? runeData.join(",") : undefined,
+					locale: locale,
+					version: version
+				}
+			});
 		},
 		// Retrieves summoner spell list.
 		summonerSpell: (callback, locale, version, dataById, spellData, options) => {
+			var cacheIdentifier = "static/" + options.region + "/summoner_spells/spells";
+			if(typeof locale === "string")
+				cacheIdentifier += "_" + locale;
 
+			if(typeof version === "string")
+				cacheIdentifier += "_" + version;
+
+			if(Array.isArray(spellData))
+				cacheIdentifier += "_" + spellData.join("-");
+
+			requestor(callback, {
+				region: options.region,
+				cache: options.cache === undefined ? true : options.cache,
+				cacheIdentifier: cacheIdentifier,
+				path: "/api/lol/static-data/${region}/v1.2/summoner-spell",
+				pathParameters: {
+					region: options.region
+				},
+				queryParameters: {
+					spellData: Array.isArray(spellData) ? spellData.join(",") : undefined,
+					dataById: dataById,
+					locale: locale,
+					version: version
+				}
+			});
 		},
 		// Retrieves summoner spell by its unique id.
 		summonerSpellById: (callback, id, locale, version, spellData, options) => {
+			var cacheIdentifier = "static/" + options.region + "/summoner_spells/spell/" + id;
+			if(typeof locale === "string")
+				cacheIdentifier += "_" + locale;
 
+			if(typeof version === "string")
+				cacheIdentifier += "_" + version;
+
+			if(Array.isArray(spellData))
+				cacheIdentifier += "_" + spellData.join("-");
+
+			requestor(callback, {
+				region: options.region,
+				cache: options.cache === undefined ? true : options.cache,
+				cacheIdentifier: cacheIdentifier,
+				path: "/api/lol/static-data/${region}/v1.2/summoner-spell/${id}",
+				pathParameters: {
+					region: options.region,
+					id: id
+				},
+				queryParameters: {
+					spellData: Array.isArray(spellData) ? spellData.join(",") : undefined,
+					locale: locale,
+					version: version
+				}
+			});
 		},
 		// Retrieve version data.
 		versions: (callback, options) => {
-
+			requestor(callback, {
+				region: options.region,
+				cache: options.cache === undefined ? true : options.cache,
+				cacheIdentifier: "/static/" + options.region + "/versions",
+				path: "/api/lol/static-data/${region}/v1.2/versions",
+				pathParameters: {
+					region: options.region
+				}
+			});
 		}
 	},
 	/**
 	 * Gets server status by region. Not rate limited.
 	 *
 	 * Docs URL: https://developer.riotgames.com/api/methods#!/908
+	 * Cache: Varies
 	 */
 	status: {
 		// Get shard list.
 		getAllShards: (callback, options) => {
-
+			requestor(callback, {
+				cache: options.cache === undefined ? true : options.cache,
+				cacheIdentifier: "/shards/" + options.region + "/shards",
+				fullPath: "http://status.leagueoflegends.com/shards"
+			});
 		},
 		// Get shard status. Returns the data available on the status.leagueoflegends.com website for the given region.
 		getOneShard: (callback, options) => {
-
+			requestor(callback, {
+				fullPath: "http://status.leagueoflegends.com/shards/" + options.region
+			});
 		}
 	},
 	/**
@@ -520,43 +862,97 @@ module.exports.api = {
 	 * Timeline information not available for all matches.
 	 *
 	 * Docs URL: https://developer.riotgames.com/api/methods#!/1064
+	 * Cache: Default on
 	 */
-	match: {
-		// Retrieve match IDs by tournament code.
-		byTournament: (callback, tournamentCode, options) => {
-
-		},
-		// Retrieve match by match ID and tournament code.
-		forTournament: (callback, match_id, tournamentCode, includeTimeline, options) => {
-
-		},
-		// Retrieve match by match ID.
-		match: (callback, match_id, includeTimeline, options) => {
-
-		}
+	match: (callback, matchId, includeTimeline, options) => {
+		requestor(callback, {
+			region: options.region,
+			cache: options.cache === undefined ? true : options.cache,
+			cacheIdentifier: "/match/" + options.region + "/" + matchId + (includeTimeline ? "_timeline" : ""),
+			path: "/api/lol/${region}/v2.2/match/${matchId}",
+			pathParameters: {
+				region: options.region,
+				matchId: matchId
+			},
+			queryParameters: {
+				includeTimeline: includeTimeline
+			}
+		});
 	},
 	/**
 	 * Get a list of matches for a given summoner ID. Includes timestamps,
 	 * IDs, season, region, role, etc.
 	 *
 	 * Docs URL: https://developer.riotgames.com/api/methods#!/1069
+	 * Cache: Default on
 	 */
 	matchList: (callback, summonerId, championIds, rankedQueues, seasons, beginTime, endTime, beginIndex, endIndex, options) => {
-
+		requestor(callback, {
+			region: options.region,
+			cache: options.cache === undefined ? true : options.cache,
+			cacheIdentifier: "/matchlist/" + options.region + "/" + summonerId,
+			path: "/api/lol/${region}/v2.2/matchlist/by-summoner/${summonerId}",
+			pathParameters: {
+				region: options.region,
+				summonerId: summonerId
+			},
+			queryParameters: {
+				championIds: Array.isArray(championIds) ? championIds.join(",") : undefined,
+				rankedQueues: rankedQueues,
+				seasons: seasons,
+				beginTime: beginTime,
+				endTime: endTime,
+				beginIndex: beginIndex,
+				endIndex: endIndex
+			}
+		});
 	},
 	/**
 	 * Ranked or unranked match history for a given summoner ID.
 	 *
 	 * Docs URL: https://developer.riotgames.com/api/methods#!/1080
+	 * Cache: Default on
 	 */
 	stats: {
 		// Get ranked stats by summoner ID.
 		ranked: (callback, summonerId, season, version, options) => {
+			var cacheIdentifier = "/stats/" + options.region + "/ranked/" + summonerId;
+			if(season !== undefined)
+				cacheIdentifier += "_" + season;
 
+			if(version !== undefined)
+				cacheIdentifier += "_" + version;
+
+			requestor(callback, {
+				region: options.region,
+				cache: options.cache === undefined ? true : options.cache,
+				cacheIdentifier: cacheIdentifier,
+				path: "/api/lol/${region}/v1.3/stats/by-summoner/${summonerId}/ranked",
+				pathParameters: {
+					region: options.region,
+					summonerId: summonerId
+				},
+				queryParameters: {
+					season: season,
+					version: version
+				}
+			});
 		},
 		// Get player stats summaries by summoner ID.
 		summary: (callback, summonerId, season, options) => {
-
+			requestor(callback, {
+				region: options.region,
+				cache: options.cache === undefined ? true : options.cache,
+				cacheIdentifier: "/stats/" + options.region + "/summary/" + summonerId + (season === undefined ? "" : "_" + season),
+				path: "/api/lol/${region}/v1.3/stats/by-summoner/${summonerId}/summary",
+				pathParameters: {
+					region: options.region,
+					summonerId: summonerId
+				},
+				queryParameters: {
+					season: season
+				}
+			});
 		}
 	},
 	/**
@@ -564,27 +960,63 @@ module.exports.api = {
 	 * mastery and rune pages for a profile.
 	 *
 	 * Docs URL: https://developer.riotgames.com/api/methods#!/3724
+	 * Cache: Varies
 	 */
 	summoner: {
 		// Get summoner objects mapped by standardized summoner name for a given list of summoner names.
 		byName: (callback, summonerNames, options) => {
-
+			requestor(callback, {
+				region: options.region,
+				path: "/api/lol/${region}/v1.4/summoner/by-name/${summonerNames}",
+				pathParameters: {
+					region: options.region,
+					summonerNames: Array.isArray(summonerNames) ? summonerNames.join(",") : undefined
+				}
+			});
 		},
 		// Get summoner objects mapped by summoner ID for a given list of summoner IDs.
 		byId: (callback, summonerIds, options) => {
-
+			requestor(callback, {
+				region: options.region,
+				path: "/api/lol/${region}/v1.4/summoner/${summonerIds}",
+				pathParameters: {
+					region: options.region,
+					summonerIds: Array.isArray(summonerIds) ? summonerIds.join(",") : undefined
+				}
+			});
 		},
 		// Get mastery pages mapped by summoner ID for a given list of summoner IDs
 		masteries: (callback, summonerIds, options) => {
-
+			requestor(callback, {
+				region: options.region,
+				path: "/api/lol/${region}/v1.4/summoner/${summonerIds}/masteries",
+				pathParameters: {
+					region: options.region,
+					summonerIds: Array.isArray(summonerIds) ? summonerIds.join(",") : undefined
+				}
+			});
 		},
 		// Get summoner names mapped by summoner ID for a given list of summoner IDs.
 		names: (callback, summonerIds, options) => {
-
+			requestor(callback, {
+				region: options.region,
+				path: "/api/lol/${region}/v1.4/summoner/${summonerIds}/name",
+				pathParameters: {
+					region: options.region,
+					summonerIds: Array.isArray(summonerIds) ? summonerIds.join(",") : undefined
+				}
+			});
 		},
 		// Get rune pages mapped by summoner ID for a given list of summoner IDs.
 		runes: (callback, summonerIds, options) => {
-
+			requestor(callback, {
+				region: options.region,
+				path: "/api/lol/${region}/v1.4/summoner/${summonerIds}/runes",
+				pathParameters: {
+					region: options.region,
+					summonerIds: Array.isArray(summonerIds) ? summonerIds.join(",") : undefined
+				}
+			});
 		}
 	},
 	/**
@@ -608,9 +1040,9 @@ module.exports.api = {
 	 *
 	 * Docs URL: https://developer.riotgames.com/api/methods#!/1057
 	 */
-	tournament_provider: {
+	tournamentProvider: {
 		// Create a tournament code for the given tournament.
-		createCode: (callback, tournament_id, count, data, options) => {
+		createCode: (callback, tournamentId, count, data, options) => {
 
 		},
 		// Returns the tournament code DTO associated with a tournament code string.
