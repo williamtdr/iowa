@@ -1,9 +1,8 @@
 /*
- * Web & Websocket server. Provides an interface to the application.
+ * Web server. Provides an interface to the application.
  */
 var express = require("express"),
 	exphbs = require("express-handlebars"),
-	websocket = require("websocket"),
 	compression = require("compression"),
 	fs = require("fs"),
 	exec = require("child_process").exec;

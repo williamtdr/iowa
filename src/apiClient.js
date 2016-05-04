@@ -414,7 +414,17 @@ module.exports.api = {
 		},
 		// Get league entries mapped by team ID for a given list of team IDs.
 		byTeamEntry: (callback, teamIds, options) => {
+			if(Array.isArray(teamIds))
+				teamIds = teamIds.join(",");
 
+			requestor(callback, {
+				region: options.region,
+				path: "/api/lol/${region}/v2.5/league/by-team/${teamIds}/entry",
+				path_parameters: {
+					region: options.region,
+					teamIds: teamIds
+				}
+			});
 		},
 		// Get challenger tier leagues
 		challenger: (callback, type, options) => {

@@ -2,6 +2,10 @@
   "name": "iowa",
   "version": "1.0.0",
   "description": "Institute of War Aptitute Training Interface",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/williamtdr/iowa.git"
+  },
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -18,9 +22,8 @@
     "gulp-concat": "^2.6.0",
     "gulp-uglify": "^1.5.3",
     "lodash.get": "^4.2.1",
-    "lodash.set": "^4.1.0",gul
-    "node-rest-client": "^1.8.0",
-    "websocket": "^1.0.22"
+    "lodash.set": "^4.1.0",
+    "node-rest-client": "^1.8.0"
   },
   "engines": {
     "node": ">=4.0.0"
