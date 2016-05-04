@@ -4,7 +4,7 @@
  * To make changes to the web code, run `gulp` in the repository directory when working.
  */
 var gulp = require("gulp"),
-	minifyCss = require("gulp-minify-css"),
+	minifyCss = require("gulp-clean-css"),
 	concat = require("gulp-concat"),
 	uglify = require("gulp-uglify");
 

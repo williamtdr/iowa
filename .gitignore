@@ -39,10 +39,11 @@ jspm_packages
 # Project
 config/config.json
 static/dist
+.cache
 
 # Common IDEs
-.idea/*
-.nbproject/*
+.idea
+.nbproject
 
 # Windows Crap
 Thumbs.db

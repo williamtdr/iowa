@@ -3,7 +3,7 @@
  * Features:
  *   - Translates the REST requests used by the API into native JS functions.
  *   - Caches one-off requests as well as more static data (e.g. regions or champions)
- *   - Handles rate limits and queues requests as needed
+ *   - Handles rate limits and queues requests as needed (todo: do better without waiting for riot's apis to lock us out)
  *   - Reuses data when available (e.g. if we've retrieved all champion data, then this
  *   ask for a specific champion by ID, return the result from the bigger cache).
  *
@@ -22,6 +22,170 @@
  * in which case they're a function. Enjoy! :)
  */
 
+var Client = require("node-rest-client").Client,
+	fs = require("fs-extra");
+
+const regionData = {
+	"br": {
+		host: "br.api.pvp.net",
+		id: "BR1"
+	},
+	"eune": {
+		host: "eune.api.pvp.net",
+		id: "EUN1"
+	},
+	"euw": {
+		host: "euw.api.pvp.net",
+		id: "EUW1"
+	},
+	"jp": {
+		host: "jp.api.pvp.net",
+		id: "JP1"
+	},
+	"kr": {
+		host: "kr.api.pvp.net",
+		id: "KR"
+	},
+	"lan": {
+		host: "lan.api.pvp.net",
+		id: "LA1"
+	},
+	"las": {
+		host: "las.api.pvp.net",
+		id: "LA2"
+	},
+	"na": {
+		host: "na.api.pvp.net",
+		id: "NA1"
+	},
+	"oce": {
+		host: "oce.api.pvp.net",
+		id: "OC1"
+	},
+	"tr": {
+		host: "tr.api.pvp.net",
+		id: "TR1"
+	},
+	"ru": {
+		host: "ru.api.pvp.net",
+		id: "RU"
+	},
+	"pbe": {
+		host: "pbe.api.pvp.net",
+		id: "PBE1"
+	}
+};
+
+var client = new Client({
+	requestConfig: {
+		timeout: 3000,
+		noDelay: true
+	},
+	responseConfig: {
+		timeout: 15000
+	}
+});
+
+/*
+ * Caches API responses to memory and the filesystem (default .cache/).
+ */
+var CacheEngine = {
+	data: {},
+	hitOr: (callback, id, on_miss) => {
+		if(CacheEngine.data[id])
+			return callback(CacheEngine.data[id]);
+
+		fs.readJSON(global.user_config.get("cache.directory") + "/" + id + ".json", "utf8", (err, data) => {
+			if(err) {
+				on_miss((data) => {
+					CacheEngine.save(id, data);
+					callback(data);
+				});
+			} else {
+				CacheEngine.data[id] = data;
+				callback(data);
+			}
+		});
+	},
+	save: (id, data) => {
+		CacheEngine.data[id] = data;
+		fs.outputJSON(global.user_config.get("cache.directory") + "/" + id + ".json", data, (err) => {
+			if(err)
+				console.warn("Encountered a problem when trying to save the cache for an API request: " + err);
+		});
+	}
+};
+
+var requestor = (callback, info) => {
+	var retrieve = (callback) => {
+		var args = {
+			path: info.path_parameters || {},
+			parameters: info.url_parameters
+		};
+
+		args.parameters.api_key = global.user_config.get("credentials.riot_api_key");
+
+		var req = client[info.method || "get"]("https://" + regionData[info.region].host + info.path, args, (data, response) => {
+			if(response.statusCode !== 200) {
+				var callback_reply = {
+					type: "error",
+					code: response.statusCode
+				};
+
+				switch(response.statusCode) {
+					case 400:
+						callback_reply.text = "Bad request.";
+					break;
+					case 401:
+						callback_reply.text = "Authorization failure.";
+						console.warn("Warning: Received an authentication error from Riot's API servers. Make sure your API key is correct.");
+					break;
+					case 404:
+						callback_reply.text = "Resource not found.";
+					break;
+					case 429:
+						return setTimeout(() => retrieve(callback), (response.headers["Retry-After"] * 1000)); // todo: handle this better
+					break;
+					case 500:
+						callback_reply.text = "The API encountered an internal server error.";
+					break;
+				}
+
+				callback(callback_reply);
+			} else
+				callback(data);
+		});
+
+		req.on('requestTimeout', (req) => {
+			callback({
+				tyep: "error",
+				text: "The request timed out before it could be executed. This implies an error with the machine - check you have available sockets."
+			});
+			req.abort();
+		});
+
+		req.on('responseTimeout', (res) => {
+			callback({
+				tyep: "error",
+				text: "The request to the API server timed out. You can check the status of pvp.net servers at http://status.leagueoflegends.com/."
+			});
+		});
+
+		req.on('error', (err) => {
+			callback({
+				tyep: "error",
+				text: "Internal error before the request could be made: " + err
+			});
+		});
+	};
+
+	if(info.cache && info.cache_identifier)
+		CacheEngine.hitOr(callback, info.cache_identifier, retrieve);
+	else
+		retrieve(callback);
+};
+
+module.exports.regionData = regionData;
 module.exports.api = {
 	/**
 	 * The state of champions, including whether they are active, enabled for
@@ -31,11 +195,21 @@ module.exports.api = {
 	 */
 	champion: {
 		// Retrieve champion by ID.
-		get_one: (id, options) => {
-
+		getOne: (callback, id, options) => {
+			requestor(callback, {
+				region: options.region,
+				cache: options.cache === true,
+				path: "/api/lol/${region}/v1.2/champion/${id}",
+				path_parameters: {
+					region: options.region,
+					id: id
+				},
+				url_parameters: {},
+				cache_identifier: "champion/" + id
+			});
 		},
 		// Retrieve all champions.
-		get_all: (free_to_play, options) => {
+		getAll: (callback, freeToPlay, options) => {
 
 		}
 	},
@@ -46,21 +220,21 @@ module.exports.api = {
 	 *
 	 * Docs URL: https://developer.riotgames.com/api/methods#!/1071
 	 */
-	champion_mastery: {
+	championMastery: {
 		// Get a champion mastery by player id and champion id. Response code 204 means there were no masteries found for given player id or player id and champion id combination.
-		get_one: (summoner_id, champion_id, options) => {
+		getOne: (callback, summonerId, championId, options) => {
 
 		},
 		// Get all champion mastery entries sorted by number of champion points descending.
-		get_all: (summoner_id, options) => {
+		getAll: (callback, summonerId, options) => {
 
 		},
 		// Get a player's total champion mastery score, which is sum of individual champion mastery levels.
-		score: (summoner_id, options) => {
+		score: (callback, summonerId, options) => {
 
 		},
 		// Get specified number of top champion mastery entries sorted by number of champion points descending.
-		top_champions: (summoner_id, count, options) => {
+		topChampions: (callback, summonerId, count, options) => {
 
 		}
 	},
@@ -71,7 +245,7 @@ module.exports.api = {
 	 *
 	 * Docs URL: https://developer.riotgames.com/api/methods#!/976
 	 */
-	current_game: (summoner_id, options) => {
+	currentGame: (callback, summonerId, options) => {
 
 	},
 	/**
@@ -80,7 +254,7 @@ module.exports.api = {
 	 *
 	 * Docs URL: https://developer.riotgames.com/api/methods#!/977
 	 */
-	featured_games: (options) => {
+	featuredGames: (callback, options) => {
 
 	},
 	/**
@@ -89,7 +263,7 @@ module.exports.api = {
 	 *
 	 * Docs URL: https://developer.riotgames.com/api/methods#!/1078
 	 */
-	game: (summoner_ids, options) => {
+	game: (callback, summonerIds, options) => {
 
 	},
 	/**
@@ -100,27 +274,27 @@ module.exports.api = {
 	 */
 	league: {
 		// Get leagues mapped by summoner ID for a given list of summoner IDs.
-		by_summoner: (summoner_ids, options) => {
+		bySummoner: (callback, summonerIds, options) => {
 
 		},
 		// Get league entries mapped by summoner ID for a given list of summoner IDs.
-		by_summoner_entry: (summoner_ids, options) => {
+		bySummonerEntry: (callback, summonerIds, options) => {
 
 		},
 		// Get leagues mapped by team ID for a given list of team IDs.
-		by_team: (team_ids, options) => {
+		byTeam: (callback, teamIds, options) => {
 
 		},
 		// Get league entries mapped by team ID for a given list of team IDs.
-		by_team_entry: (team_ids, options) => {
+		byTeamEntry: (callback, teamIds, options) => {
 
 		},
 		// Get challenger tier leagues
-		challenger: (type, options) => {
+		challenger: (callback, type, options) => {
 
 		},
 		// Get master tier leagues.
-		master: (type, options) => {
+		master: (callback, type, options) => {
 
 		}
 	},
@@ -133,59 +307,59 @@ module.exports.api = {
 	 */
 	static_data: {
 		// Retrieves champion list.
-		champion_all: (locale, version, data_by_id, champ_data, options) => {
+		championAll: (callback, locale, version, dataById, champData, options) => {
 
 		},
 		// Retrieves a champion by its id.
-		champion_one: (id, locale, version, champ_data, options) => {
+		championOne: (callback, id, locale, version, champData, options) => {
 
 		},
 		// Retrieves item list.
-		item_all: (locale, version, item_list_data, options) => {
+		itemAll: (callback, locale, version, itemListData, options) => {
 
 		},
 		// Retrieves item by its unique id
-		item_one: (id, locale, version, item_data, options) => {
+		itemOne: (callback, id, locale, version, itemData, options) => {
 
 		},
 		// Retrieve language strings data
-		language_strings: (locale, version, options) => {
+		languageStrings: (callback, locale, version, options) => {
 
 		},
 		// Retrieve supported languages data.
-		languages: (options) => {
+		languages: (callback, options) => {
 
 		},
 		// Retrieve map data.
-		map: (locale, version, options) => {
+		map: (callback, locale, version, options) => {
 
 		},
 		// Retrieves mastery list.
-		mastery: (locale, version, mastery_list_data, options) => {
+		mastery: (callback, locale, version, masteryListData, options) => {
 
 		},
 		// Retrieve realm data.
-		realm: (options) => {
+		realm: (callback, options) => {
 
 		},
 		// Retrieves rune list.
-		rune: (locale, version, rune_list_data, options) => {
+		rune: (callback, locale, version, runeListData, options) => {
 
 		},
 		// Retrieves rune by its unique id.
-		rune_by_id: (id, locale, version, rune_data, options) => {
+		runeById: (callback, id, locale, version, runeData, options) => {
 
 		},
 		// Retrieves summoner spell list.
-		summoner_spell: (locale, version, data_by_id, spell_data, options) => {
+		summonerSpell: (callback, locale, version, dataById, spellData, options) => {
 
 		},
 		// Retrieves summoner spell by its unique id.
-		summoner_spell_by_id: (id, locale, version, spell_data, options) => {
+		summonerSpellById: (callback, id, locale, version, spellData, options) => {
 
 		},
 		// Retrieve version data.
-		versions: (options) => {
+		versions: (callback, options) => {
 
 		}
 	},
@@ -196,11 +370,11 @@ module.exports.api = {
 	 */
 	status: {
 		// Get shard list.
-		get_all_shards: (options) => {
+		getAllShards: (callback, options) => {
 
 		},
 		// Get shard status. Returns the data available on the status.leagueoflegends.com website for the given region.
-		get_one_shard: (options) => {
+		getOneShard: (callback, options) => {
 
 		}
 	},
@@ -212,15 +386,15 @@ module.exports.api = {
 	 */
 	match: {
 		// Retrieve match IDs by tournament code.
-		by_tournament: (tournament_code, options) => {
+		byTournament: (callback, tournamentCode, options) => {
 
 		},
 		// Retrieve match by match ID and tournament code.
-		for_tournament: (match_id, tournament_code, include_timeline, options) => {
+		forTournament: (callback, match_id, tournamentCode, includeTimeline, options) => {
 
 		},
 		// Retrieve match by match ID.
-		match: (match_id, include_timeline, options) => {
+		match: (callback, match_id, includeTimeline, options) => {
 
 		}
 	},
@@ -230,7 +404,7 @@ module.exports.api = {
 	 *
 	 * Docs URL: https://developer.riotgames.com/api/methods#!/1069
 	 */
-	match_list: (summoner_id, champion_ids, ranked_queues, seasons, begin_time, end_time, begin_index, end_index, options) => {
+	matchList: (callback, summonerId, championIds, rankedQueues, seasons, beginTime, endTime, beginIndex, endIndex, options) => {
 
 	},
 	/**
@@ -240,11 +414,11 @@ module.exports.api = {
 	 */
 	stats: {
 		// Get ranked stats by summoner ID.
-		ranked: (summoner_id, season, version, options) => {
+		ranked: (callback, summonerId, season, version, options) => {
 
 		},
 		// Get player stats summaries by summoner ID.
-		summary: (summoner_id, season, options) => {
+		summary: (callback, summonerId, season, options) => {
 
 		}
 	},
@@ -256,23 +430,23 @@ module.exports.api = {
 	 */
 	summoner: {
 		// Get summoner objects mapped by standardized summoner name for a given list of summoner names.
-		by_name: (summoner_names, options) => {
+		byName: (callback, summonerNames, options) => {
 
 		},
 		// Get summoner objects mapped by summoner ID for a given list of summoner IDs.
-		by_id: (summoner_ids, options) => {
+		byId: (callback, summonerIds, options) => {
 
 		},
 		// Get mastery pages mapped by summoner ID for a given list of summoner IDs
-		masteries: (summoner_ids, options) => {
+		masteries: (callback, summonerIds, options) => {
 
 		},
 		// Get summoner names mapped by summoner ID for a given list of summoner IDs.
-		names: (summoner_ids, options) => {
+		names: (callback, summonerIds, options) => {
 
 		},
 		// Get rune pages mapped by summoner ID for a given list of summoner IDs.
-		runes: (summoner_ids, options) => {
+		runes: (callback, summonerIds, options) => {
 
 		}
 	},
@@ -284,11 +458,11 @@ module.exports.api = {
 	 */
 	team: {
 		// Get teams mapped by summoner ID for a given list of summoner IDs.
-		by_summoner: (summoner_ids, options) => {
+		bySummoner: (callback, summonerIds, options) => {
 
 		},
 		// Get teams mapped by team ID for a given list of team IDs.
-		by_id: (team_ids, options) => {
+		byId: (callback, teamIds, options) => {
 
 		}
 	},
@@ -299,27 +473,27 @@ module.exports.api = {
 	 */
 	tournament_provider: {
 		// Create a tournament code for the given tournament.
-		create_code: (tournament_id, count, data, options) => {
+		createCode: (callback, tournament_id, count, data, options) => {
 
 		},
 		// Returns the tournament code DTO associated with a tournament code string.
-		get_by_code: (tournament_code, options) => {
+		getByCode: (callback, tournamentCode, options) => {
 
 		},
 		// Update the pick type, map, spectator type, or allowed summoners for a code
-		update: (tournament_code, data, options) => {
+		update: (callback, tournamentCode, data, options) => {
 
 		},
 		// Gets a list of lobby events by tournament code.
-		list_by_code: (tournament_code, options) => {
+		listByCode: (callback, tournamentCode, options) => {
 
 		},
 		// Creates a tournament provider and returns its ID.
-		create_provider: (data, options) => {
+		createProvider: (callback, data, options) => {
 
 		},
 		// Creates a tournament and returns its ID.
-		create_tournament: (data, options) => {
+		createTournament: (callback, data, options) => {
 
 		}
 	}
