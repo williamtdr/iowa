@@ -3,7 +3,7 @@
  * Features:
  *   - Translates the REST requests used by the API into native JS functions.
  *   - Caches one-off requests as well as more static data (e.g. regions or champions)
- *   - Handles rate limits and queues requests as needed (todo: do better without waiting for riot's apis to lock us out)
+ *   - Handles rate limits and queues requests as needed
  *   - Reuses data when available (e.g. if we've retrieved all champion data, then this
  *   ask for a specific champion by ID, return the result from the bigger cache).
  *
@@ -14,12 +14,21 @@
  */
 
 /*
+ * TODO
+ * [ ] Finish implementing API methods
+ * [ ] Caching for queries that take multiple summoner ids
+ * [ ] Cache higher levels (e.g. whole champion list -> individual champions)
+ * [ ] Cache expiration (including on individual endpoints)
+ * [ ] Anticipate rate limits
+ */
+
+/*
  * Implementation notes:
  * Pass the region for each request in the options object. Caching can be configured
- * there too. In most cases, the name of the endpoint in Riot's API documentation
- * corresponds to the function here, however multiple words are separated by underscores
- * for consistency. Top-level endpoints are objects unless they only have one child,
- * in which case they're a function. Enjoy! :)
+ * there too. To skip a parameter, pass a value of undefined. In most cases, the name
+ * of the endpoint in Riot's API documentation corresponds to the function here.
+ * Top-level endpoints are objects unless they only have one child, in which case
+ * they're a function. Enjoy! :)
  */
 
 var Client = require("node-rest-client").Client,
@@ -116,12 +125,23 @@ var CacheEngine = {
 	}
 };
 
+/*
+ * Handles making the request to the Riot API servers, with simple error handling for the response.
+ */
 var requestor = (callback, info) => {
 	var retrieve = (callback) => {
 		var args = {
 			path: info.path_parameters || {},
-			parameters: info.url_parameters
-		};
+			parameters: info.query_parameters || {}
+		}, key;
+
+		for(key in args.path)
+			if(args.path[key] === undefined)
+				delete args.path[key];
+
+		for(key in args.parameters)
+			if(args.parameters[key] === undefined)
+				delete args.parameters[key];
 
 		args.parameters.api_key = global.user_config.get("credentials.riot_api_key");
 
@@ -158,7 +178,7 @@ var requestor = (callback, info) => {
 
 		req.on('requestTimeout', (req) => {
 			callback({
-				tyep: "error",
+				type: "error",
 				text: "The request timed out before it could be executed. This implies an error with the machine - check you have available sockets."
 			});
 			req.abort();
@@ -166,14 +186,14 @@ var requestor = (callback, info) => {
 
 		req.on('responseTimeout', (res) => {
 			callback({
-				tyep: "error",
+				type: "error",
 				text: "The request to the API server timed out. You can check the status of pvp.net servers at http://status.leagueoflegends.com/."
 			});
 		});
 
 		req.on('error', (err) => {
 			callback({
-				tyep: "error",
+				type: "error",
 				text: "Internal error before the request could be made: " + err
 			});
 		});
@@ -192,25 +212,38 @@ module.exports.api = {
 	 * ranked play, in the free champion rotation, or available in bot games.
 	 *
 	 * Docs URL: https://developer.riotgames.com/api/methods#!/1077
+	 * Cached: Default on, unless pulling free champion rotation
 	 */
 	champion: {
 		// Retrieve champion by ID.
 		getOne: (callback, id, options) => {
 			requestor(callback, {
 				region: options.region,
-				cache: options.cache === true,
+				cache: options.cache !== undefined ? options.cache : true,
 				path: "/api/lol/${region}/v1.2/champion/${id}",
 				path_parameters: {
 					region: options.region,
 					id: id
 				},
-				url_parameters: {},
 				cache_identifier: "champion/" + id
 			});
 		},
 		// Retrieve all champions.
 		getAll: (callback, freeToPlay, options) => {
-
+			// If cache isn't set, this request won't be cached with the freeToPlay option set to true.
+			// When the rotation is cached, it's saved under a different file (champion_ftp.json).
+			requestor(callback, {
+				region: options.region,
+				cache: options.cache !== undefined ? options.cache : freeToPlay !== true,
+				path: "/api/lol/${region}/v1.2/champion",
+				path_parameters: {
+					region: options.region
+				},
+				query_parameters: {
+					freeToPlay: freeToPlay
+				},
+				cache_identifier: freeToPlay ? "champion_ftp" : "champion"
+			});
 		}
 	},
 	/**
@@ -219,23 +252,64 @@ module.exports.api = {
 	 * requested, or the full list can be obtained.
 	 *
 	 * Docs URL: https://developer.riotgames.com/api/methods#!/1071
+	 * Cache: Default on
 	 */
 	championMastery: {
 		// Get a champion mastery by player id and champion id. Response code 204 means there were no masteries found for given player id or player id and champion id combination.
 		getOne: (callback, summonerId, championId, options) => {
-
+			requestor(callback, {
+				region: options.region,
+				cache: options.cache !== undefined ? options.cache : true,
+				path: "/championmastery/location/${platformId}/player/${playerId}/champion/${championId}",
+				path_parameters: {
+					platformId: regionData[options.region].id,
+					playerId: summonerId,
+					championId: championId
+				},
+				cache_identifier: summonerId + "/championMastery/byChampion/" + championId
+			});
 		},
 		// Get all champion mastery entries sorted by number of champion points descending.
 		getAll: (callback, summonerId, options) => {
-
+			requestor(callback, {
+				region: options.region,
+				cache: options.cache !== undefined ? options.cache : true,
+				path: "/championmastery/location/${platformId}/player/${playerId}/champions",
+				path_parameters: {
+					platformId: regionData[options.region].id,
+					playerId: summonerId
+				},
+				cache_identifier: summonerId + "/championMastery/all"
+			});
 		},
 		// Get a player's total champion mastery score, which is sum of individual champion mastery levels.
 		score: (callback, summonerId, options) => {
-
+			requestor(callback, {
+				region: options.region,
+				cache: options.cache !== undefined ? options.cache : true,
+				path: "/championmastery/location/${platformId}/player/${playerId}/score",
+				path_parameters: {
+					platformId: regionData[options.region].id,
+					playerId: summonerId
+				},
+				cache_identifier: summonerId + "/championMastery/score"
+			});
 		},
 		// Get specified number of top champion mastery entries sorted by number of champion points descending.
 		topChampions: (callback, summonerId, count, options) => {
-
+			requestor(callback, {
+				region: options.region,
+				cache: options.cache !== undefined ? options.cache : true,
+				path: "/championmastery/location/${platformId}/player/${playerId}/topchampions",
+				path_parameters: {
+					platformId: regionData[options.region].id,
+					playerId: summonerId
+				},
+				query_parameters: {
+					count: count
+				},
+				cache_identifier: summonerId + "/championMastery/top"
+			});
 		}
 	},
 	/**
@@ -244,46 +318,99 @@ module.exports.api = {
 	 * returned information.
 	 *
 	 * Docs URL: https://developer.riotgames.com/api/methods#!/976
+	 * Cache: Disabled
 	 */
 	currentGame: (callback, summonerId, options) => {
-
+		requestor(callback, {
+			region: options.region,
+			path: "/observer-mode/rest/consumer/getSpectatorGameInfo/${platformId}/${summonerId}",
+			path_parameters: {
+				platformId: regionData[options.region].id,
+				summonerId: summonerId
+			}
+		});
 	},
 	/**
 	 * Lists summary information about featured games, as they are shown in the lower right
 	 * of the pvp.net client's homepage.
 	 *
 	 * Docs URL: https://developer.riotgames.com/api/methods#!/977
+	 * Cache: Disabled
 	 */
 	featuredGames: (callback, options) => {
-
+		requestor(callback, {
+			region: options.region,
+			path: "/observer-mode/rest/featured"
+		});
 	},
 	/**
-	 * Gets a list of recent matches played by a given summoner ID. Detailed information
+	 * Lists recently played matches for a given summoner ID. Detailed information
 	 * includes that similar to that which is shown at the end-of-game screen.
 	 *
 	 * Docs URL: https://developer.riotgames.com/api/methods#!/1078
+	 * Cache: Default off
 	 */
-	game: (callback, summonerIds, options) => {
-
+	game: (callback, summonerId, options) => {
+		requestor(callback, {
+			region: options.region,
+			cache: options.cache !== undefined ? options.cache : false,
+			path: "/api/lol/${region}/v1.3/game/by-summoner/${summonerId}/recent",
+			path_parameters: {
+				region: options.region,
+				summonerId: summonerId
+			},
+			cache_identifier: summonerId + "/games"
+		});
 	},
 	/**
 	 * Ranked information by summoner, team, or list tiers for upper
 	 * levels (challenger/master). Shows participants in a league.
 	 *
 	 * Docs URL: https://developer.riotgames.com/api/methods#!/985
+	 * Cache: Varies
 	 */
 	league: {
 		// Get leagues mapped by summoner ID for a given list of summoner IDs.
 		bySummoner: (callback, summonerIds, options) => {
+			if(Array.isArray(summonerIds))
+				summonerIds = summonerIds.join(",");
 
+			requestor(callback, {
+				region: options.region,
+				path: "/api/lol/${region}/v2.5/league/by-summoner/${summonerIds}",
+				path_parameters: {
+					region: options.region,
+					summonerIds: summonerIds
+				}
+			});
 		},
 		// Get league entries mapped by summoner ID for a given list of summoner IDs.
 		bySummonerEntry: (callback, summonerIds, options) => {
+			if(Array.isArray(summonerIds))
+				summonerIds = summonerIds.join(",");
 
+			requestor(callback, {
+				region: options.region,
+				path: "/api/lol/${region}/v2.5/league/by-summoner/${summonerIds}/entry",
+				path_parameters: {
+					region: options.region,
+					summonerIds: summonerIds
+				}
+			});
 		},
 		// Get leagues mapped by team ID for a given list of team IDs.
 		byTeam: (callback, teamIds, options) => {
+			if(Array.isArray(teamIds))
+				teamIds = teamIds.join(",");
 
+			requestor(callback, {
+				region: options.region,
+				path: "/api/lol/${region}/v2.5/league/by-team/${teamIds}",
+				path_parameters: {
+					region: options.region,
+					teamIds: teamIds
+				}
+			});
 		},
 		// Get league entries mapped by team ID for a given list of team IDs.
 		byTeamEntry: (callback, teamIds, options) => {
