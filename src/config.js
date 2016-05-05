@@ -19,14 +19,15 @@ module.exports = class Config {
 			onComplete = () => {
 				completed++;
 
-				if(this.sample && !this.data) {
-					console.log("Creating default configuration from sample...");
-					this.data = this.sample;
-					this.save();
-				}
+				if(completed === 2) {
+					if(this.sample && !this.data) {
+						console.log("Creating default configuration from sample...");
+						this.data = this.sample;
+						this.save();
+					}
 
-				if(completed === 2)
 					callback(this.data);
+				}
 			};
 
 

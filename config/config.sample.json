@@ -5,10 +5,27 @@
 	},
 	"cache": {
 		"directory": ".cache",
-		"refresh_after": 86400,
-		"refresh_on_miss": true
+		"save_failures": false,
+		"times": {
+			"very_short": 60,
+			"short": 300,
+			"medium": 1800,
+			"long": 86400,
+			"very_long": 604800
+		}
 	},
 	"credentials": {
 		"riot_api_key": ""
-	}
+	},
+	"rate_limiting": [
+		{
+			"requests": 10,
+			"reset": 10
+		},
+		{
+			"requests": 500,
+			"reset": 600
+		}
+	],
+	"default_region": "na"
 }
