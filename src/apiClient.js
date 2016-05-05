@@ -15,12 +15,13 @@
 
 /*
  * TODO
- * [ ] Finish implementing API methods
- * [ ] Test all API methods
+ * [x] Finish implementing API methods
+ * [x] Test all API methods
  * [ ] Caching for queries that take multiple summoner ids
  * [ ] Cache higher levels (e.g. whole champion list -> individual champions)
  * [ ] Cache expiration (including on individual endpoints)
  * [ ] Anticipate rate limits
+ * [ ] Split into classes
  */
 
 /*
@@ -1024,22 +1025,42 @@ module.exports.api = {
 	 * mastery and rune pages for a profile.
 	 *
 	 * Docs URL: https://developer.riotgames.com/api/methods#!/986
+	 * 
+	 * Cache: Disabled
 	 */
 	team: {
 		// Get teams mapped by summoner ID for a given list of summoner IDs.
+		// /!\ Not tested - couldn't get the team I was on with a request.
 		bySummoner: (callback, summonerIds, options) => {
-
+			requestor(callback, {
+				region: options.region,
+				path: "/api/lol/${region}/v2.4/team/by-summoner/${summonerIds}",
+				pathParameters: {
+					region: options.region,
+					summonerIds: Array.isArray(summonerIds) ? summonerIds.join(",") : undefined
+				}
+			});
 		},
 		// Get teams mapped by team ID for a given list of team IDs.
+		// /!\ Not tested - couldn't get the team I was on with a request.
 		byId: (callback, teamIds, options) => {
-
+			requestor(callback, {
+				region: options.region,
+				path: "/api/lol/${region}/v2.4/team/${teamIds}",
+				pathParameters: {
+					region: options.region,
+					summonerIds: Array.isArray(teamIds) ? teamIds.join(",") : undefined
+				}
+			});
 		}
-	},
-	/**
+	}
+	/*
 	 * Allows for the external management of organized tournaments.
 	 *
 	 * Docs URL: https://developer.riotgames.com/api/methods#!/1057
-	 */
+	 *
+	 * Disappeared as of May 4th, 2016
+	 *
 	tournamentProvider: {
 		// Create a tournament code for the given tournament.
 		createCode: (callback, tournamentId, count, data, options) => {
@@ -1066,4 +1087,5 @@ module.exports.api = {
 
 		}
 	}
+	*/
 };
