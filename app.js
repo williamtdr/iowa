@@ -40,8 +40,6 @@ var next = (result) => {
 	var http = require("./src/http"),
 		engine = require("./src/api/cache").engine;
 
-	engine.loadTable();
-
 	console.log("Ready :)");
 };
 

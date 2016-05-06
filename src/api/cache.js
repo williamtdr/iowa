@@ -48,7 +48,7 @@ var engine = {
 	complexLookup: (info) => {
 		for(var key in table) {
 			var entry = table[key];
-			if(entry.identifier === info.identifier && entry.params === info.params)
+			if(entry.identifier === info.identifier && JSON.stringify(entry.params) === JSON.stringify(info.params))
 				return key;
 		}
 
@@ -58,7 +58,7 @@ var engine = {
 		var entries_removed = 0;
 
 		for(var key in table)
-			if(table[key].expires >= Math.floor(Date.now() / 1000)) {
+			if(table[key].expires <= Math.floor(Date.now() / 1000)) {
 				entries_removed++;
 				console.log("removing " + key + "...");
 
@@ -105,7 +105,7 @@ var engine = {
 				key = base + "/" + info.identifier.replace("{dynamic_id}", info.dynamic_id[0]);
 
 		if(info.identifier && !info.params && (!info.dynamic_id || (info.dynamic_id.length === 1 && info.dynamic_id[0])))
-			if(table[key] === undefined || table[key].expires >= Math.floor(Date.now() / 1000)) {
+			if(table[key] === undefined || table[key].expires <= Math.floor(Date.now() / 1000)) {
 				// Object has a simple key, but is not yet in the cache or has expired
 				onMiss((data) => {
 					engine.save(info, data);
@@ -140,7 +140,7 @@ var engine = {
 			id = (info.region || "global") + "/" + (info.dynamic_id ? info.identifier.replace("{dynamic_id}", info.dynamic_id[0]) : info.identifier);
 
 			table[id] = {
-				expires: Math.floor(Date.now() / 1000)
+				expires: Math.floor(Date.now() / 1000) + info.expires
 			};
 		} else {
 			if(info.dynamic_id) {
@@ -148,7 +148,7 @@ var engine = {
 				// todo: collision checking
 
 				table[id] = {
-					expires: Math.floor(Date.now() / 1000),
+					expires: Math.floor(Date.now() / 1000) + info.expires,
 					dynamic_id: info.dynamic_id
 				};
 
@@ -157,8 +157,11 @@ var engine = {
 			} else {
 				id = (info.region || "global") + "/" + info.identifier + "-" + utils.randomHash(8);
 
+				var cleanParams = info.params;
+				delete cleanParams.api_key;
+
 				table[id] = {
-					expires: Math.floor(Date.now() / 1000),
+					expires: Math.floor(Date.now() / 1000) + info.expires,
 					identifier: info.identifier,
 					params: info.params
 				};
@@ -173,4 +176,4 @@ var engine = {
 
 module.exports.engine = engine;
 
-setInterval(engine.checkOutdatedEntries, module.exports.times.MEDIUM);
+setInterval(engine.checkOutdatedEntries, (module.exports.times.MEDIUM * 1000));

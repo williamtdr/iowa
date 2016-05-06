@@ -34,14 +34,15 @@ app.use(session({
 }));
 
 app.use((req, res, next) => {
-	var path = req.path.split("/");
+	var path = req.path.split("/"),
+		region, name, id;
+
 	if(app.locals.regions.indexOf(path[1]) > -1) {
-		var region = path[1],
-			name = path[2];
+		region = path[1];
+		name = path[2];
 
 		iowa.renderSummonerPage((data) => {
 			res.locals = data;
-			console.log(data);
 
 			if(data.type === "error") {
 				if(data.code === 404)
@@ -61,8 +62,22 @@ app.use((req, res, next) => {
 			res.locals.extra_styles = [
 				"/css/page/summoner.css"
 			];
+			res.locals.inline_script = "loadSummonerInfo(\"" + region + "\", " + data.summoner_id + ");";
 			res.render("summoner");
 		}, region, name);
+	} else if(path[1] === "data") {
+		if(app.locals.regions.indexOf(path[2]) > -1) {
+			region = path[2];
+			id = path[3];
+
+			iowa.renderDataPage((data) => {
+				res.locals = data;
+
+				res.render("summoner_data", {
+					layout: false
+				});
+			}, region, id);
+		}
 	} else {
 		next();
 	}

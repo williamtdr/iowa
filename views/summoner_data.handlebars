@@ -1,0 +1,10 @@
+{{#if error}}
+	<span style="color: #c0392b">{{error.text}}</span>
+{{/if}}
+{{#each champions}}
+	<img src="{{this.imageURL}}" width="48px" height="48px" style="margin-right: 10px">
+	<span style="font-size: 1.2em; color: #2980b9">{{this.name}}</span><br>
+	Played: {{this.stats.totalSessionsPlayed}} / Won: {{this.stats.totalSessionsWon}} / Lost: {{this.stats.totalSessionsLost}}<br>
+	K: {{this.stats.totalChampionKills}} / A: {{this.stats.totalAssists}} / D: {{this.stats.totalDeathsPerSession}}<br>
+	<br>
+{{/each}}

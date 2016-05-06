@@ -18,6 +18,11 @@
 </body>
 <script src="/dist/iowa.min.js"></script>
 {{#each extra_scripts}}
-	<script src="{{this}}"></script>
+<script src="{{this}}"></script>
 {{/each}}
+{{#if inline_script}}
+<script>
+	{{{inline_script}}}
+</script>
+{{/if}}
 </html>

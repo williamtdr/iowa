@@ -95,6 +95,7 @@ module.exports.request = (callback, info) => {
 		args.parameters.api_key = global.user_config.get("credentials.riot_api_key");
 
 		var req = client[info.method || "get"](info.fullPath || "https://" + regionData[info.region].host + info.path, args, (data, response) => {
+			console.log("API Request: " + info.path);
 			if(response.statusCode !== 200) {
 				var callbackReply = {
 					type: "error",
