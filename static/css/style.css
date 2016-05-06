@@ -1,4 +1,5 @@
 /*
+ * Global styles, applied to every page.
  * Colors: https://flatuicolors.com/
  */
 
@@ -13,7 +14,7 @@ html, body {
 	overflow-x: hidden;
 }
 
-#main_content {
+#main-content {
 	position: relative;
 	z-index: 2000000;
 }
@@ -28,8 +29,8 @@ input[type="text"] {
 	box-shadow: none;
 	border: 2px solid black;
 	border-radius: 5px;
-	margin-right: 10px;
 	margin-top: 1px;
+	color: black;
 }
 
 input[type="text"]:focus {
@@ -38,21 +39,6 @@ input[type="text"]:focus {
 
 .form-control {
 	display: inline-block;
-	width: 100px;
-	height: 35px;
-	padding: 6px 12px;
-	font-size: 14px;
-	line-height: 1.42857143;
-	color: #555;
-	background-color: #fff;
-	background-image: none;
-	border: 1px solid #ccc;
-	border-radius: 4px;
-	-webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
-	box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
-	-webkit-transition: border-color ease-in-out .15s,-webkit-box-shadow ease-in-out .15s;
-	-o-transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
-	transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
 	outline: none;
 }
 
@@ -60,37 +46,32 @@ input[type="text"]:focus {
 	width: 240px;
 }
 
-#left-side {
-	margin-left: 20px;
-	padding-left: 20px;
-	padding-right: 20px;
-	max-width: 500px;
-	background: url("../img/leather-texture.jpg");
-	padding-bottom: 30px;
-	padding-top: 15px;
-	margin-top: 30px;
-	border: 1px solid black;
-	border-radius: 10px;
+/*
+ * This works around the content flashing on poor network connections when loading.
+ * See js/app.js for loading implementation.
+ */
+.animsition {
+	display: none;
 }
 
-#challenge {
-	font-family: "Raleway", sans-serif;
-	margin: 0;
-	width: 100%;
-	text-align: center;
-	border-bottom: 1px solid #F39C12;
-	line-height: 1.8;
+.error > .alert {
+	border-radius: 0;
+	color: white;
+	background-color: #c0392b;
+	border: none;
 }
 
-#intro {
-	max-width: 520px;
-	margin-top: 10px;
-	color: #BDC3C7;
-	margin-bottom: 30px;
+a {
+	color: #bdc3c7;
+	transition: .25s;
 }
 
-@media screen and (max-width: 768px) {
-	#challenge {
-		padding-left: 10px;
-	}
+.a-dotted {
+	border-bottom: 1px dotted #95a5a6;
+}
+
+a:hover {
+	color: white;
+	text-decoration: none;
+	cursor: pointer;
 }

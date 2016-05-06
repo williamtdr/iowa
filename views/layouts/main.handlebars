@@ -3,8 +3,12 @@
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link href="/dist/iowa.min.css" rel="stylesheet">
 	<link href='https://fonts.googleapis.com/css?family=Lato:400,700|Raleway:300' rel='stylesheet' type='text/css'>
-	<link href="dist/iowa.min.css" rel="stylesheet">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.2/css/font-awesome.min.css">
+	{{#each extra_styles}}
+		<link rel="stylesheet" href="{{this}}">
+	{{/each}}
 	<title>Institute of War Aptitude</title>
 </head>
 <body>
@@ -12,5 +16,8 @@
 {{{body}}}
 
 </body>
-<script src="dist/iowa.min.js"></script>
+<script src="/dist/iowa.min.js"></script>
+{{#each extra_scripts}}
+	<script src="{{this}}"></script>
+{{/each}}
 </html>

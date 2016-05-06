@@ -1,10 +1,10 @@
-<nav class="animsition fade-in-down-sm">
+<nav class="animsition fade-in-down-sm" data-animsition-in-duration="750">
 	<div id="logo">
-		<div id="logo_top">I. O. W. A.</div>
+		<div id="logo_top">I. o. W. A.</div>
 		<div id="logo_bottom">Institute of War Aptitude</div>
 	</div>
 </nav>
-<div class="animsition zoom-in-sm" id="main_content">
+<div class="animsition zoom-in-sm" id="main-content" data-animsition-in-duration="750">
 	<div id="left-side">
 		<h1 id="challenge">Greetings, summoner.</h1>
 		<p id="intro">
@@ -12,13 +12,24 @@
 			The Institute of War Aptitude is here to help you out with that. We'll take a look at your match history, ranked games, and champion history. Using that data, we'll recommend champions to play and tips to improve your gameplay.
 		</p>
 		<div id="call-to-action">
+			{{#if error}}
+				<div class="error">
+					<div class="alert alert-danger">
+						{{#if error.text}}
+							{{{error.text}}}
+						{{else}}
+							An unknown error occurred when fetching data for your summoner profile. Please try again later, or check Riot Games' public status page <a href="http://status.leagueoflegends.com">here</a>.
+						{{/if}}
+					</div>
+				</div>
+			{{/if}}
 			<input class="summoner-name-submit" type="text" maxlength="16" placeholder="Summoner Name">
 			<select class="selectpicker summoner-region form-control">
-				<option>NA</option>
-				<option>EUW</option>
-				<option>OCE</option>
+				{{#each regions}}
+					<option>{{toUpperCase this}}</option>
+				{{/each}}
 			</select>
-			<button class="summoner-name-go">Go!</button>
+			<button class="summoner-name-go form-control btn-primary">Go!</button>
 		</div>
 	</div>
 </div>

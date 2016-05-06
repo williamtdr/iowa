@@ -1,0 +1,74 @@
+#left-side {
+	margin-left: 20px;
+	padding-left: 20px;
+	padding-right: 20px;
+	max-width: 500px;
+	background: url("../../img/leather-texture.jpg");
+	padding-bottom: 30px;
+	padding-top: 15px;
+	margin-top: 30px;
+	border: 1px solid black;
+	border-radius: 10px;
+}
+
+#challenge {
+	font-family: "Raleway", sans-serif;
+	margin: 0;
+	width: 100%;
+	text-align: center;
+	border-bottom: 1px solid #F39C12;
+	line-height: 1.8;
+}
+
+#call-to-action > select {
+	width: 100px;
+}
+
+#call-to-action > button {
+	width: 60px;
+	margin-left: 5px;
+}
+
+#intro {
+	max-width: 520px;
+	margin-top: 10px;
+	color: #BDC3C7;
+	margin-bottom: 30px;
+}
+
+@media screen and (max-width: 768px) {
+	#challenge {
+		font-size: 2em;
+		text-align: left;
+		padding-left: 0;
+		border: 0;
+	}
+
+	#left-side {
+		padding: 0;
+		background: transparent;
+		border: 0;
+		margin: 10px;
+	}
+
+	#background_shader {
+		opacity: 1;
+	}
+
+	.summoner-name-submit {
+		width: 100%;
+		display: block;
+		margin-bottom: 10px;
+	}
+
+	.summoner-region {
+		width: 80px;
+		margin-left: 3px;
+	}
+
+	#intro {
+		margin-top: 0;
+		padding-left: 5px;
+		padding-right: 5px;
+	}
+}

@@ -17,7 +17,7 @@ advanceBackgroundImage = function() {
 	var target_el;
 
 	var options = {
-		root: "img/bg",
+		root: "/img/bg",
 		ext: ".jpg",
 		min: 1,
 		max: 1

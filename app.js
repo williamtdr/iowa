@@ -36,8 +36,13 @@ var next = (result) => {
 		return process.exit(1);
 	}
 
-	// Config looks good, launch into main app
-	require("./src/iowa");
+	// Config looks good, launch app
+	var http = require("./src/http"),
+		engine = require("./src/api/cache").engine;
+
+	engine.loadTable();
+
+	console.log("Ready :)");
 };
 
 console.log("Reading configuration...");

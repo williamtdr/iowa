@@ -1,0 +1,61 @@
+#loading-summoner-info {
+	min-height: 400px;
+	background-color: #ecf0f1;
+	padding: 15px;
+	margin-left: 50px;
+	margin-right: 50px;
+}
+
+#loading-summoner-info > img {
+	position: absolute;
+}
+
+#name {
+	font-size: 2em;
+	color: #2c3e50;
+	display: inline-block;
+	margin-right: 5px;
+}
+
+#content {
+	width: calc(100% - 148px);
+	margin-left: 148px;
+	height: 100%;
+	position: relative;
+	padding-top: 5px;
+}
+
+#separator {
+	position: absolute;
+	border-color: #95a5a6;
+	width: 100%;
+	top: 25px;
+}
+
+#level {
+	color: #c0392b;
+}
+
+#sub-content {
+	color: black;
+	margin-top: 10px;
+}
+
+@media screen and (max-width: 768px) {
+	#loading-summoner-info {
+		margin: 0;
+	}
+
+	#loading-summoner-info img {
+		width: 48px;
+	}
+
+	#content {
+		margin-left: 60px;
+		width: calc(100% - 60px);
+	}
+
+	#separator {
+		top: 25px;
+	}
+}

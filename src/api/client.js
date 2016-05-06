@@ -15,9 +15,9 @@ var request_queue = [],
 	request_counter = 0;
 
 const regionData = {
-	"br": {
-		host: "br.api.pvp.net",
-		id: "BR1"
+	"na": {
+		host: "na.api.pvp.net",
+		id: "NA1"
 	},
 	"eune": {
 		host: "eune.api.pvp.net",
@@ -26,6 +26,14 @@ const regionData = {
 	"euw": {
 		host: "euw.api.pvp.net",
 		id: "EUW1"
+	},
+	"oce": {
+		host: "oce.api.pvp.net",
+		id: "OC1"
+	},
+	"br": {
+		host: "br.api.pvp.net",
+		id: "BR1"
 	},
 	"jp": {
 		host: "jp.api.pvp.net",
@@ -42,14 +50,6 @@ const regionData = {
 	"las": {
 		host: "las.api.pvp.net",
 		id: "LA2"
-	},
-	"na": {
-		host: "na.api.pvp.net",
-		id: "NA1"
-	},
-	"oce": {
-		host: "oce.api.pvp.net",
-		id: "OC1"
 	},
 	"tr": {
 		host: "tr.api.pvp.net",

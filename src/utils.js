@@ -4,7 +4,7 @@
 
 module.exports = {
 	replaceAt: (input, index, character) => input.substr(0, index) + character + input.substr(index + character.length),
-	getRandomInt: (min, max) => Math.floor(Math.random() * (max - min + 1)) + min,
+	randomInt: (min, max) => Math.floor(Math.random() * (max - min + 1)) + min,
 	randomHash: (length) => {
 		var text = "",
 			possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";

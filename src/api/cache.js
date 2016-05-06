@@ -60,9 +60,11 @@ var engine = {
 		for(var key in table)
 			if(table[key].expires >= Math.floor(Date.now() / 1000)) {
 				entries_removed++;
+				console.log("removing " + key + "...");
+
 				if(sync)
-					fs.removeSync(table[key].path);
-				else fs.remove(table[key].path);
+					fs.removeSync(key);
+				else fs.remove(key);
 
 				if(memory_cache[key])
 					delete memory_cache[key];
@@ -96,7 +98,11 @@ var engine = {
 	},
 	hitOr: (callback, info, onMiss) => {
 		var base = (info.region || "global"),
-			key = (info.dynamic_id.length === 1 && info.dynamic_id[0]) ? base + "/" + info.identifier.replace("{dynamic_id}", info.dynamic_id[0]) : base + "/" + info.identifier;
+			key = base + "/" + info.identifier;
+
+		if(info.dynamic_id)
+			if((info.dynamic_id.length === 1 && info.dynamic_id[0]))
+				key = base + "/" + info.identifier.replace("{dynamic_id}", info.dynamic_id[0]);
 
 		if(info.identifier && !info.params && (!info.dynamic_id || (info.dynamic_id.length === 1 && info.dynamic_id[0])))
 			if(table[key] === undefined || table[key].expires >= Math.floor(Date.now() / 1000)) {
@@ -131,7 +137,7 @@ var engine = {
 			return false;
 
 		if(!info.params && (!info.dynamic_id || (info.dynamic_id.length === 1 && info.dynamic_id[0]))) {
-			id = (info.region || "global") + "/" + info.identifier.replace("{dynamic_id}", info.dynamic_id[0]);
+			id = (info.region || "global") + "/" + (info.dynamic_id ? info.identifier.replace("{dynamic_id}", info.dynamic_id[0]) : info.identifier);
 
 			table[id] = {
 				expires: Math.floor(Date.now() / 1000)
@@ -167,4 +173,4 @@ var engine = {
 
 module.exports.engine = engine;
 
-setInterval(checkOutdatedEntries, module.exports.times.MEDIUM);
+setInterval(engine.checkOutdatedEntries, module.exports.times.MEDIUM);
