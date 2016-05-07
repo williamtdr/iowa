@@ -75,3 +75,9 @@ a:hover {
 	text-decoration: none;
 	cursor: pointer;
 }
+
+@media screen and (max-width: 768px) {
+	#background-shader {
+		opacity: 1;
+	}
+}

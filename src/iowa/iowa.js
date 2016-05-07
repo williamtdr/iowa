@@ -1,19 +1,17 @@
 /*
- * Main application logic
+ * Interface between the web server -> API calls and our algorithms.
+ * Also gets and updates static info commonly needed by the app.
  */
+
 var api = require("./../api/api"),
 	regions = require("./../api/client").regions,
 	cache = require("./../api/cache"),
-	utils = require("./../utils"),
 	times = cache.times,
 	cacheEngine = cache.engine,
 	StaticData = require("./StaticData"),
 	RankedChampionStats = require("./class/RankedChampionStats"),
 	SummonerProfile = require("./class/SummonerProfile"),
-	RankedBestChampion = require("./algorithim/RankedBestChampions");
-
-var realmInfo = {},
-	champions = {};
+	RankedBestChampion = require("./algorithm/RankedBestChampions");
 
 function preflight(region, name, id) {
 	if(region !== undefined && !regions[region])
@@ -35,7 +33,6 @@ function preflight(region, name, id) {
 }
 
 module.exports = {
-	realmInfo: realmInfo,
 	renderSummonerPage: (callback, region, name) => {
 		var response = {},
 			check = preflight(region, name);

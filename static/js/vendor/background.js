@@ -1,7 +1,5 @@
 /*
  * background.js - Pick a random fullscreen background image under a vignette, switching with transitions
- * TODO: Load image asynchronously and integrate with animsition
- * Attempt 1: Fail to emulate the behavior of background-size: cover with an <img> element at all screen sizes
  */
 
 function getRandomInt(min, max) {

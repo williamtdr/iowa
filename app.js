@@ -14,7 +14,6 @@
  * This file validates the configuration then launches the main app.
  */
 
-
 var Config = require("./src/config");
 global.user_config = false; // config/config.json
 
@@ -30,8 +29,8 @@ var next = (result) => {
 	}
 	
 	if(global.user_config.get("credentials.riot_api_key").length !== 36) {
-		console.log("This project requires a developer key for Riot Games' API to");
-		console.log("retrieve summoner stats and other data. Please get one from");
+		console.log("This project requires a developer key for the Riot Games API");
+		console.log("to retrieve summoner stats and other data. Please get one from");
 		console.log("developer.riotgames.com and enter it in config/config.json.");
 		return process.exit(1);
 	}

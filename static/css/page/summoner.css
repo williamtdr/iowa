@@ -1,12 +1,11 @@
-#loading-summoner-info {
+#summoner-info {
 	min-height: 400px;
 	background-color: #ecf0f1;
 	padding: 15px;
-	margin-left: 50px;
-	margin-right: 50px;
+	margin: 20px 50px;
 }
 
-#loading-summoner-info > img {
+#summoner-info > img {
 	position: absolute;
 	width: 96px;
 }
@@ -84,11 +83,11 @@
 }
 
 @media screen and (max-width: 768px) {
-	#loading-summoner-info {
+	#summoner-info {
 		margin: 0;
 	}
 
-	#loading-summoner-info img {
+	#summoner-info img {
 		width: 48px;
 	}
 

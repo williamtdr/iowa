@@ -1,18 +1,18 @@
 /*
  * Handles making the request to the Riot API servers, with simple error handling for the response.
- * Tracks regions and their information.
+ * Checks rate limits as defined in the configuration. Tracks regions and their information.
  */
 
 var Client = require("node-rest-client").Client,
 	cache = require("./cache").engine,
-	RateLimiter = require('limiter').RateLimiter;
+	RateLimiter = require("limiter").RateLimiter;
 
 var limiters = [];
 for(var condition of global.user_config.get("rate_limiting"))
 	limiters.push(new RateLimiter(condition.requests, condition.reset * 1000));
 
 var request_queue = [],
-	request_counter = 0;
+	request_counter = -1;
 
 const regionData = {
 	"na": {
@@ -106,7 +106,7 @@ module.exports.request = (callback, info) => {
 					case 400:
 						callbackReply.text = "Bad request.";
 					break;
-					case 401:
+					case 403:
 						callbackReply.text = "Authorization failure.";
 						console.warn("Warning: Received an authentication error from Riot's API servers. Make sure your API key is correct.");
 					break;
@@ -126,7 +126,7 @@ module.exports.request = (callback, info) => {
 				callback(data);
 		});
 
-		req.on('requestTimeout', (req) => {
+		req.on("requestTimeout", (req) => {
 			callback({
 				type: "error",
 				text: "The request timed out before it could be executed. This implies an error with the machine - check you have available sockets."
@@ -134,14 +134,14 @@ module.exports.request = (callback, info) => {
 			req.abort();
 		});
 
-		req.on('responseTimeout', (res) => {
+		req.on("responseTimeout", (res) => {
 			callback({
 				type: "error",
 				text: "The request to the API server timed out. You can check the status of pvp.net servers at http://status.leagueoflegends.com/."
 			});
 		});
 
-		req.on('error', (err) => {
+		req.on("error", (err) => {
 			callback({
 				type: "error",
 				text: "Internal error before the request could be made: " + err
@@ -149,9 +149,12 @@ module.exports.request = (callback, info) => {
 		});
 	};
 
-	var check_limiter = (engine_callback) => {
+	var add_to_limiter = (engine_callback) => {
 		request_counter++;
 		request_queue[request_counter] = limiters.length;
+
+		check_limiter(request_counter, engine_callback);
+	}, check_limiter = (request_counter, engine_callback) => {
 		for(var limiter of limiters)
 			limiter.removeTokens(1, () => {
 				if(--request_queue[request_counter] === 0) {
@@ -164,7 +167,9 @@ module.exports.request = (callback, info) => {
 	};
 
 	if(info.cache && info.cache.enabled)
-		cache.hitOr(callback, info.cache, check_limiter);
+		cache.hitOr(callback, info.cache, add_to_limiter);
 	else
-		check_limiter();
+		retrieve((data) => {
+			callback(data);
+		});
 };

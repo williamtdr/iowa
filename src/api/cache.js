@@ -12,8 +12,10 @@
 var fs = require("fs-extra"),
 	utils = require("../utils");
 
-var memory_cache = {};
+var memory_cache = {},
+	table = {}; // cache/info.json
 
+// Used by api.js and others to configure cache length
 module.exports.times = {
 	VERY_SHORT: global.user_config.get("cache.times.very_short"),
 	SHORT: global.user_config.get("cache.times.short"),
@@ -21,8 +23,6 @@ module.exports.times = {
 	LONG: global.user_config.get("cache.times.long"),
 	VERY_LONG: global.user_config.get("cache.times.very_long")
 };
-
-var table = {};
 
 var engine = {
 	loadTable: () => {
@@ -45,6 +45,8 @@ var engine = {
 	saveTable: () => {
 		fs.outputJSON(global.user_config.get("cache.directory") + "/info.json", table);
 	},
+	// Iterates through the table to find cached data for endpoints that
+	// accept custom parameters or multiple values for a single field.
 	complexLookup: (info) => {
 		for(var key in table) {
 			var entry = table[key];
@@ -54,6 +56,9 @@ var engine = {
 
 		return false;
 	},
+	// Periodically called to remove information that is no longer current
+	// from the JSON files and the table. Cache expiration can be configured
+	// in config.json/cache/times.
 	checkOutdatedEntries: (sync) => {
 		var entries_removed = 0;
 
@@ -96,6 +101,8 @@ var engine = {
 				console.warn("Encountered a problem when trying to save the cache for an API request: " + err);
 		});
 	},
+	// Called by api.js to get data. Returns cached data if available,
+	// or forwards the request then stores the result.
 	hitOr: (callback, info, onMiss) => {
 		var base = (info.region || "global"),
 			key = base + "/" + info.identifier;
@@ -130,43 +137,43 @@ var engine = {
 				});
 		}
 	},
+	// Saves an API response to disk and the table
 	save: (info, data) => {
 		var id;
 
 		if(data.type === "error" && !global.user_config.get("cache.save_failures"))
 			return false;
 
-		if(!info.params && (!info.dynamic_id || (info.dynamic_id.length === 1 && info.dynamic_id[0]))) {
-			id = (info.region || "global") + "/" + (info.dynamic_id ? info.identifier.replace("{dynamic_id}", info.dynamic_id[0]) : info.identifier);
+		id = (info.region || "global") + "/" + info.identifier; // Case 1: Simple identifier, no dynamic or params
 
-			table[id] = {
-				expires: Math.floor(Date.now() / 1000) + info.expires
-			};
-		} else {
-			if(info.dynamic_id) {
-				id = (info.region || "global") + "/multi/" + info.identifier.replace("{dynamic_id}", utils.randomHash());
-				// todo: collision checking
+		if(info.params)
+			while(table[id]) // avoid collisions with existing files
+				id = (info.region || "global") + "/" + info.identifier + "-" + utils.randomString(8); // Case 2: Custom parameters
 
-				table[id] = {
-					expires: Math.floor(Date.now() / 1000) + info.expires,
-					dynamic_id: info.dynamic_id
-				};
+		// Lists with only one entry can be saved as if they took one parameter.
+		// Generate a random filename for lists with multiple entries.
+		if(info.dynamic_id)
+			if(info.dynamic_id.length === 1 && info.dynamic_id[0]) {
+				info.identifier = info.identifier.replace("{dynamic_id}", info.dynamic_id[0]);
+				id = (info.region || "global") + "/" + info.identifier;
+			} else
+				while(table[id])
+					id = (info.region || "global") + "/multi/" + info.identifier.replace("{dynamic_id}", utils.randomString(8)); // Case 3: Dynamic, optional params
 
-				if(info.params)
-					table[id].params = info.params;
-			} else {
-				id = (info.region || "global") + "/" + info.identifier + "-" + utils.randomHash(8);
+		table[id] = {
+			expires: Math.floor(Date.now() / 1000) + info.expires
+		};
 
-				var cleanParams = info.params;
-				delete cleanParams.api_key;
+		if(info.params)
+			delete info.params.api_key;
 
-				table[id] = {
-					expires: Math.floor(Date.now() / 1000) + info.expires,
-					identifier: info.identifier,
-					params: info.params
-				};
-			}
-		}
+		table[id].identifier = info.identifier;
+
+		if(info.dynamic_id && info.dynamic_id.length > 1)
+			table[id].dynamic_id = info.dynamic_id;
+
+		if(info.params)
+			table[id].params = info.params;
 
 		engine.saveTable();
 		memory_cache[id] = data;

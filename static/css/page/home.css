@@ -51,10 +51,6 @@
 		margin: 10px;
 	}
 
-	#background_shader {
-		opacity: 1;
-	}
-
 	.summoner-name-submit {
 		width: 100%;
 		display: block;

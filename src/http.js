@@ -1,10 +1,26 @@
 /*
- * Web server. Provides an interface to the application.
+ * Serves as the interface to the application.
+ * Layout & template files can be found in views/, styles & client-side
+ * scripts in static/. When modifying the CSS or JS, run gulp in a separate
+ * process to rebuild the minified files the client loads.
+ *
+ * Url structure:
+ * / - Prompt for user & region, then redirect
+ *
+ * /{region}/{summonerName} - URL the user sees for profiles. Redirects to /
+ * with an error if the summoner was not found, otherwise shows basic summoner
+ * info and loads data in from an AJAX request, to allow time for the API requests
+ * to complete.
+ *
+ * /data/{region}/{summonerName} - AJAX request from the profile page. Gets and
+ * formats data from Riot APIs, then injected as HTML into the profile page when
+ * done.
  */
+
 var express = require("express"),
 	exphbs = require("express-handlebars"),
 	compression = require("compression"),
-	session = require('express-session'),
+	session = require("express-session"),
 	fs = require("fs"),
 	exec = require("child_process").exec,
 	utils = require("./utils"),
@@ -28,7 +44,7 @@ app.use(express.static("static"));
 app.locals.regions = Object.keys(regions);
 
 app.use(session({
-	secret: utils.randomHash(40),
+	secret: utils.randomString(40),
 	resave: false,
 	saveUninitialized: true
 }));
@@ -47,6 +63,11 @@ app.use((req, res, next) => {
 			if(data.type === "error") {
 				if(data.code === 404)
 					data.text = "We couldn't find that summoner on the given region. Check your details and try again, or sign up for a new account <a href=\"http://signup.leagueoflegends.com\">here</a>."
+
+				if(data.code === 403) {
+					res.locals.error = "The API key being used by this server was rejected. Please check the system configuration at config/config.json, and make sure it is a valid API key from the <a href=\"http://developer.riotgames.com\" target=\"_blank\">Riot Games Developer Portal</a>.";
+					return res.status(403).render("internal_error");
+				}
 
 				req.session.error = {
 					text: data.text || false,
@@ -78,28 +99,24 @@ app.use((req, res, next) => {
 				});
 			}, region, id);
 		}
+	} else if(req.path === "" || req.path === "/" || req.path === "/index.html") {
+		res.locals.extra_styles = [
+			"/css/page/home.css"
+		];
+
+		if(req.session.error) {
+			// Show errors from previous requests if they haven't expired
+			if(Math.floor(Date.now() / 1000) < req.session.error.expires)
+				res.locals.error = req.session.error;
+
+			delete req.session.error;
+		}
+
+		res.render("home");
 	} else {
-		next();
+		res.locals.error = "404: Resource not found.";
+		res.status(404).render("internal_error");
 	}
-});
-
-app.get("/", (req, res) => {
-	res.locals.extra_scripts = [
-		"/js/page/home.js"
-	];
-	res.locals.extra_styles = [
-		"/css/page/home.css"
-	];
-
-	if(req.session.error) {
-		// Show errors from previous requests if they haven't expired
-		if(Math.floor(Date.now() / 1000) < req.session.error.expires)
-			res.locals.error = req.session.error;
-
-		delete req.session.error;
-	}
-
-	res.render("home");
 });
 
 var start = () => {
@@ -115,12 +132,14 @@ var start = () => {
 		exec("gulp stop", (error, stdout) => {
 			if(!error) start();
 			else {
-				console.log("Error when rebuilding web files - check you have gulp properly installed.");
+				console.log("Error when rebuilding web files.");
+				console.log("Please run: npm install gulp -g");
+				process.exit();
 			}
 		});
 	};
 
 // dist/ folder is not synced to GitHub for cleaner commits, so automatically build web files on first run
-fs.access('static/dist/iowa.min.css', fs.R_OK, (err) => {
+fs.access("static/dist/iowa.min.css", fs.R_OK, (err) => {
 	err ? rebuild() : start();
 });

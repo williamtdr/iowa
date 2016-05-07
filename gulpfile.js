@@ -3,6 +3,7 @@
  * Watches for changes in the static/ folder then rebuilds when necessary.
  * To make changes to the web code, run `gulp` in the repository directory when working.
  */
+
 var gulp = require("gulp"),
 	minifyCss = require("gulp-clean-css"),
 	concat = require("gulp-concat"),

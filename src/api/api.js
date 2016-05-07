@@ -1,11 +1,9 @@
 /*
- * Abstraction layer for Riot Games API in ES6. v1 (11pm on a Monday!)
+ * Abstraction layer for Riot Games API in ES6.
  * Features:
  *   - Translates the REST requests used by the API into native JS functions.
  *   - Caches one-off requests as well as more static data (e.g. regions or champions)
  *   - Handles rate limits and queues requests as needed
- *   - Reuses data when available (e.g. if we've retrieved all champion data, then this
- *   ask for a specific champion by ID, return the result from the bigger cache).
  *
  * Cache files can normally be found in .cache and are saved for one day.
  * This behavior can be changed by modifying config.json.
@@ -14,23 +12,12 @@
  */
 
 /*
- * TODO
- * [x] Finish implementing API methods
- * [x] Test all API methods
- * [x] Caching for queries that take multiple summoner ids
- * [ ] Cache higher levels (e.g. whole champion list -> individual champions)
- * [x] Cache expiration (including on individual endpoints)
- * [x] Anticipate rate limits
- * [x] Split into classes
- */
-
-/*
  * Implementation notes:
  * Pass the region for each request in the options object. Caching can be configured
- * there too. To skip a parameter, pass a value of undefined. In most cases, the name
- * of the endpoint in Riot's API documentation corresponds to the function here.
- * Top-level endpoints are objects unless they only have one child, in which case
- * they're a function. Enjoy! :)
+ * as a boolean there as well. To skip a parameter, pass a value of undefined.
+ * In most cases, the name of the endpoint in Riot's API documentation corresponds
+ * to the function here, however all are camel case. Top-level endpoints are objects
+ * unless they only have one child, in which case they're a function. Enjoy! :)
  */
 
 var client = require("./client"),
@@ -44,7 +31,6 @@ module.exports = {
 	 * ranked play, in the free champion rotation, or available in bot games.
 	 *
 	 * Docs URL: https://developer.riotgames.com/api/methods#!/1077
-	 * Cached: Default on
 	 */
 	champion: {
 		// Retrieve champion by ID.
@@ -95,7 +81,6 @@ module.exports = {
 	 * requested, or the full list can be obtained.
 	 *
 	 * Docs URL: https://developer.riotgames.com/api/methods#!/1071
-	 * Cache: Default on
 	 */
 	championMastery: {
 		// Get a champion mastery by player id and champion id. Response code 204 means there were no masteries found for given player id or player id and champion id combination.
@@ -179,7 +164,6 @@ module.exports = {
 	 * returned information.
 	 *
 	 * Docs URL: https://developer.riotgames.com/api/methods#!/976
-	 * Cache: Disabled
 	 */
 	currentGame: (callback, summonerId, options) => {
 		request(callback, {
@@ -196,7 +180,6 @@ module.exports = {
 	 * of the pvp.net client's homepage.
 	 *
 	 * Docs URL: https://developer.riotgames.com/api/methods#!/977
-	 * Cache: Default on
 	 */
 	featuredGames: (callback, options) => {
 		request(callback, {
@@ -215,7 +198,6 @@ module.exports = {
 	 * includes that similar to that which is shown at the end-of-game screen.
 	 *
 	 * Docs URL: https://developer.riotgames.com/api/methods#!/1078
-	 * Cache: Default on
 	 */
 	game: (callback, summonerId, options) => {
 		request(callback, {
@@ -238,7 +220,6 @@ module.exports = {
 	 * levels (challenger/master). Shows participants in a league.
 	 *
 	 * Docs URL: https://developer.riotgames.com/api/methods#!/985
-	 * Cache: Default on
 	 */
 	league: {
 		// Get leagues mapped by summoner ID for a given list of summoner IDs.
@@ -376,7 +357,6 @@ module.exports = {
 	 * limited.
 	 *
 	 * Docs URL: https://developer.riotgames.com/api/methods#!/1055
-	 * Cached: Default on
 	 */
 	static_data: {
 		// Retrieves champion list.
@@ -724,7 +704,6 @@ module.exports = {
 	 * Gets server status by region. Not rate limited.
 	 *
 	 * Docs URL: https://developer.riotgames.com/api/methods#!/908
-	 * Cache: Default on
 	 */
 	status: {
 		// Get shard list.
@@ -756,7 +735,6 @@ module.exports = {
 	 * Timeline information not available for all matches.
 	 *
 	 * Docs URL: https://developer.riotgames.com/api/methods#!/1064
-	 * Cache: Default on
 	 */
 	match: (callback, matchId, includeTimeline, options) => {
 		var params = {
@@ -785,7 +763,6 @@ module.exports = {
 	 * IDs, season, region, role, etc.
 	 *
 	 * Docs URL: https://developer.riotgames.com/api/methods#!/1069
-	 * Cache: Default on
 	 */
 	matchList: (callback, summonerId, championIds, rankedQueues, seasons, beginTime, endTime, beginIndex, endIndex, options) => {
 		var params = {
@@ -819,7 +796,6 @@ module.exports = {
 	 * Ranked or unranked match history for a given summoner ID.
 	 *
 	 * Docs URL: https://developer.riotgames.com/api/methods#!/1080
-	 * Cache: Default on
 	 */
 	stats: {
 		// Get ranked stats by summoner ID.
@@ -875,7 +851,6 @@ module.exports = {
 	 * mastery and rune pages for a profile.
 	 *
 	 * Docs URL: https://developer.riotgames.com/api/methods#!/3724
-	 * Cache: Varies
 	 */
 	summoner: {
 		// Get summoner objects mapped by standardized summoner name for a given list of summoner names.
@@ -974,12 +949,9 @@ module.exports = {
 	 * mastery and rune pages for a profile.
 	 *
 	 * Docs URL: https://developer.riotgames.com/api/methods#!/986
-	 *
-	 * Cache: Disabled
 	 */
 	team: {
 		// Get teams mapped by summoner ID for a given list of summoner IDs.
-		// /!\ Not tested - couldn't get the team I was on with a request.
 		bySummoner: (callback, summonerIds, options) => {
 			request(callback, {
 				region: options.region,
@@ -998,7 +970,6 @@ module.exports = {
 			});
 		},
 		// Get teams mapped by team ID for a given list of team IDs.
-		// /!\ Not tested - couldn't get the team I was on with a request.
 		byId: (callback, teamIds, options) => {
 			request(callback, {
 				region: options.region,

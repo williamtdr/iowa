@@ -1,15 +1,16 @@
 /*
- * Abstraction layer for .json configuration files
+ * Abstraction layer for .json configuration files.
  */
+
 "use strict";
 
-var fs = require('fs'),
-	get = require('lodash.get'),
-	set = require('lodash.set');
+var fs = require("fs"),
+	get = require("lodash.get"),
+	set = require("lodash.set");
 
 module.exports = class Config {
-	// Create a new config object, and start loading/parsing it.
-	// Once read, calls callback.
+	// Create a new config object, and start loading/parsing it. Checks for
+	// sample & creates if necessary, then calls callback.
 	constructor(path, callback) {
 		this.data = false;
 		this.sample = false;
@@ -62,23 +63,14 @@ module.exports = class Config {
 		return this.save();
 	}
 
+	// Write current configuration to disk.
 	save() {
 		try {
-			fs.writeFileSync(this.path, JSON.stringify(this.data, null, '\t'));
+			fs.writeFileSync(this.path, JSON.stringify(this.data, null, "\t"));
 
 			return true;
 		} catch(e) {
 			return false;
 		}
-	}
-
-	// Useful Helpers
-
-	hasSample() {
-		return this.sample;
-	}
-
-	hasNotChangedFromSample(key) {
-		return (get(this.sample, key) === get(this.data, key));
 	}
 };
