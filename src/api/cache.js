@@ -139,7 +139,8 @@ var engine = {
 	},
 	// Saves an API response to disk and the table
 	save: (info, data) => {
-		var id;
+		var id,
+			firstPass = true;
 
 		if(data.type === "error" && !global.user_config.get("cache.save_failures"))
 			return false;
@@ -147,9 +148,12 @@ var engine = {
 		id = (info.region || "global") + "/" + info.identifier; // Case 1: Simple identifier, no dynamic or params
 
 		if(info.params)
-			while(table[id]) // avoid collisions with existing files
+			while(table[id] || firstPass) { // avoid collisions with existing files
 				id = (info.region || "global") + "/" + info.identifier + "-" + utils.randomString(8); // Case 2: Custom parameters
+				firstPass = false;
+			}
 
+		firstPass = true;
 		// Lists with only one entry can be saved as if they took one parameter.
 		// Generate a random filename for lists with multiple entries.
 		if(info.dynamic_id)
@@ -157,8 +161,10 @@ var engine = {
 				info.identifier = info.identifier.replace("{dynamic_id}", info.dynamic_id[0]);
 				id = (info.region || "global") + "/" + info.identifier;
 			} else
-				while(table[id])
-					id = (info.region || "global") + "/multi/" + info.identifier.replace("{dynamic_id}", utils.randomString(8)); // Case 3: Dynamic, optional params
+				while(table[id] || firstPass) { // Case 3: Dynamic, optional params
+					id = (info.region || "global") + "/multi/" + info.identifier.replace("{dynamic_id}", utils.randomString(8));
+					firstPass = false;
+				}
 
 		table[id] = {
 			expires: Math.floor(Date.now() / 1000) + info.expires
