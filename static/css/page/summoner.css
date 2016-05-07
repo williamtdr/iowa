@@ -8,6 +8,7 @@
 
 #loading-summoner-info > img {
 	position: absolute;
+	width: 96px;
 }
 
 #name {
@@ -18,8 +19,8 @@
 }
 
 #content {
-	width: calc(100% - 148px);
-	margin-left: 148px;
+	width: calc(100% - 128px);
+	margin-left: 128px;
 	height: 100%;
 	position: relative;
 	padding-top: 5px;
@@ -39,6 +40,47 @@
 #sub-content {
 	color: black;
 	margin-top: 10px;
+}
+
+.champion {
+	z-index: 1;
+	background-size: 100% auto;
+	width: calc(50% - 20px);
+	overflow: hidden;
+	height: 200px;
+	margin-bottom: 10px;
+	margin-left: 13px;
+}
+
+.champion-footer {
+	width: 100%;
+	height: 48px;
+	background-color: rgba(0, 0, 0, 0.8);
+	color: white;
+	position: absolute;
+	bottom: 0;
+	left: 0;
+}
+
+.champion-stats {
+	float: right;
+	display: block;
+	text-align: right;
+	padding-right: 5px;
+	padding-top: 4px;
+}
+
+.champion-footer > img {
+	width: 48px;
+	margin-right: 10px;
+}
+
+.champion-name {
+	font-size: 1.5em;
+	color: white;
+	position: absolute;
+	bottom: 9px;
+	left: 53px;
 }
 
 @media screen and (max-width: 768px) {

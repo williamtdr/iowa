@@ -1,11 +1,16 @@
 /*
  * Main application logic
  */
-var api = require("./api/api"),
-	regions = require("./api/client").regions,
-	cache = require("./api/cache"),
+var api = require("./../api/api"),
+	regions = require("./../api/client").regions,
+	cache = require("./../api/cache"),
+	utils = require("./../utils"),
 	times = cache.times,
-	cacheEngine = cache.engine;
+	cacheEngine = cache.engine,
+	StaticData = require("./StaticData"),
+	RankedChampionStats = require("./class/RankedChampionStats"),
+	SummonerProfile = require("./class/SummonerProfile"),
+	RankedBestChampion = require("./algorithim/RankedBestChampions");
 
 var realmInfo = {},
 	champions = {};
@@ -39,17 +44,11 @@ module.exports = {
 			return callback(check);
 
 		api.summoner.byName((data) => {
-			if(data[name.toLowerCase()]) {
-				var summoner = data[name.toLowerCase()];
+			if(data.type === "error")
+				return callback(data);
 
-				response.name = name;
-				response.summoner_id = summoner.id;
-				response.level = summoner.summonerLevel;
-				response.imageUrl = realmInfo.cdn + "/"+ realmInfo.v + "/img/profileicon/" + summoner.profileIconId + ".png";
-				response.region = region;
-			} else {
-				response = data;
-			}
+			var summoner = data[Object.keys(data)[0]];
+			response = new SummonerProfile(summoner, region);
 
 			callback(response);
 		}, [name], {
@@ -58,28 +57,39 @@ module.exports = {
 	},
 	renderDataPage: (callback, region, id) => {
 		var response = {},
-			check = preflight(region, false, id);
+			check = preflight(region, false, id),
+			champion, text;
 
 		if(check)
 			return callback(check);
 
 		api.stats.ranked((data) => {
-			if(data.type === "error" && data.code === 404) {
+			if((data.type === "error" && data.code === 404) || !data.champions) {
 				response.error = {
 					text: "No ranked matches found for this player."
 				};
+
 				return callback(response);
 			}
 
-			response.champions = data.champions;
+			var champion_stats = {},
+				champion_stats_array = [];
 
-			for(var champion of response.champions) {
-				if(champion.id === 0)
-					break;
+			for(var champion of data.champions) {
+				if(champion === null || champion.id === 0)
+					continue;
 
-				champion.name = champions[champion.id.toString()].name;
-				champion.imageURL = realmInfo.cdn + "/"+ realmInfo.v + "/img/champion/" + champions[champion.id.toString()].image.full;
+				champion_stats[champion.id] = new RankedChampionStats(champion);
+				champion_stats_array.push(champion_stats[champion.id]);
 			}
+
+			var sorted_champions = [],
+				order = RankedBestChampion(champion_stats_array);
+
+			for(var el of order)
+				sorted_champions.push(champion_stats[el]);
+
+			response.champions = sorted_champions;
 
 			callback(response);
 		}, id, undefined, undefined, {
@@ -91,17 +101,17 @@ module.exports = {
 var refreshCoreInformation = () => {
 	console.log("Refreshing core information...");
 	api.static_data.realm((data) => {
-		realmInfo = data;
+		StaticData.data.realm = data;
 	}, {
 		region: global.user_config.get("default_region")
 	});
 	api.static_data.championAll((data) => {
-		champions = data.data;
+		StaticData.data.champion = data.data;
 	}, undefined, undefined, true, ["enemytips", "image", "tags"], {
 		region: global.user_config.get("default_region")
 	});
 };
 
-setInterval(refreshCoreInformation, times.VERY_LONG);
+setInterval(refreshCoreInformation, (times.VERY_LONG * 1000));
 cacheEngine.loadTable();
 refreshCoreInformation();

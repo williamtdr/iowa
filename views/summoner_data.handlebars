@@ -1,10 +1,15 @@
 {{#if error}}
 	<span style="color: #c0392b">{{error.text}}</span>
 {{/if}}
+<div class="row">
 {{#each champions}}
-	<img src="{{this.imageURL}}" width="48px" height="48px" style="margin-right: 10px">
-	<span style="font-size: 1.2em; color: #2980b9">{{this.name}}</span><br>
-	Played: {{this.stats.totalSessionsPlayed}} / Won: {{this.stats.totalSessionsWon}} / Lost: {{this.stats.totalSessionsLost}}<br>
-	K: {{this.stats.totalChampionKills}} / A: {{this.stats.totalAssists}} / D: {{this.stats.totalDeathsPerSession}}<br>
-	<br>
+	<div class="champion col-md-6" style="background-image: url('{{this.splashURL}}')">
+		<div class="champion-footer">
+			<img src="{{this.imageURL}}" class="champion-icon">
+			<span class="champion-name">{{this.name}}</span>
+			<span class="champion-stats"><span style="color: #3498db">W {{this.outcome.won}}</span> <span style="color: #7f8c8d">·</span> <span style="color: #e74c3c">L {{this.outcome.lost}}</span><br>
+				{{this.kills.kills}}<span style="color: #bdc3c7">/</span>{{this.kills.deaths}}<span style="color: #bdc3c7">/</span>{{this.kills.assists}}</span>
+		</div>
+	</div>
 {{/each}}
+</div>

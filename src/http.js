@@ -8,7 +8,7 @@ var express = require("express"),
 	fs = require("fs"),
 	exec = require("child_process").exec,
 	utils = require("./utils"),
-	iowa = require("./iowa"),
+	iowa = require("./iowa/iowa"),
 	regions = require("./api/client").regions;
 
 var app = express();

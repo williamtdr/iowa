@@ -63,8 +63,8 @@ var engine = {
 				console.log("removing " + key + "...");
 
 				if(sync)
-					fs.removeSync(key);
-				else fs.remove(key);
+					fs.removeSync(key + ".json");
+				else fs.remove(key + ".json");
 
 				if(memory_cache[key])
 					delete memory_cache[key];
