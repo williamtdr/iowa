@@ -57,9 +57,11 @@ module.exports = class RankedChampionStats {
 
 		var champion_info = StaticData.champion[this.id.toString()];
 		this.name = champion_info.name;
+		this.title = champion_info.title;
+		this.stats = champion_info.stats;
+		this.info = champion_info.info;
 		this.imageURL = StaticData.realm.cdn + "/"+ StaticData.realm.v + "/img/champion/" + champion_info.image.full;
 		this.splashURL = StaticData.realm.cdn + "/img/champion/splash/" + champion_info.key + "_0.jpg";
 		this.tags = champion_info.tags;
-		this.enemytips = champion_info.enemytips;
 	}
 };

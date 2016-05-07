@@ -3,42 +3,70 @@
  */
 
 function closeChampionTile(el) {
-	el.data("champion-tile-open", false);
-	el.css({
-		width: "",
-		height: "",
-		"-webkit-filter": ""
-	});
-	el.find(".champion-footer").css({
-		height: ""
-	});
-	el.find(".champion-footer img").css({
-		width: ""
-	});
-	el.find(".champion-footer .champion-name").css({
-		left: "",
-		"font-size": ""
+	var id = el.data("id").toString();
+
+	$(".expanded-champion-stats[data-id=\"" + id + "\"]").animate({
+		height: 0
+	}, 500, function () {
+		$(this).hide();
+		el.find(".champion-stats").animate({
+			opacity: 1
+		}, 250);
+
+		el.data("champion-tile-open", false);
+		el.css({
+			width: "",
+			height: "",
+			"-webkit-filter": "",
+			"margin-bottom": "10px"
+		});
+		el.find(".champion-footer").css({
+			height: ""
+		});
+		el.find(".champion-footer img").removeAttr("style");
+		el.find(".champion-footer .champion-name").css({
+			left: "",
+			bottom: "",
+			"font-size": ""
+		});
+		el.find(".champion-title").hide();
 	});
 }
 
 function openChampionTile(el) {
+	var id = el.data("id").toString();
+
 	el.data("champion-tile-open", true);
 	el.css({
 		width: "100%",
-		height: "400px",
-		"-webkit-filter": "brightness(100%)"
+		height: "300px",
+		"-webkit-filter": "brightness(100%)",
+		"margin-bottom": 0
 	});
 	el.find(".champion-footer").css({
-		height: "96px"
+		height: "72px"
 	});
 	el.find(".champion-footer img").css({
-		width: "96px"
+		width: "96px",
+		position: "absolute",
+		bottom: "5px",
+		left: "5px"
 	});
 	el.find(".champion-footer .champion-name").css({
-		left: "101px",
-		"font-size": "2em"
+		left: "106px",
+		"font-size": "2em",
+		"bottom": "30px"
 	});
+	el.find(".champion-title").show();
+	$(".expanded-champion-stats[data-id=\"" + id + "\"]").show().animate({
+		height: "400px"
+	}, 500);
+	el.find(".champion-stats").animate({
+		opacity: 0
+	}, 250);
 }
+
+setCircleValue(setCircleValue)
 
 function onChampionTileClick(ev) {
 	var el = $(this);
@@ -49,7 +77,6 @@ function onChampionTileClick(ev) {
 
 	openChampionTile(el);
 }
-
 
 function loadSummonerInfo(region, id) {
 	$.get("/data/" + region + "/" + id, function(data) {

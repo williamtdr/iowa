@@ -11,17 +11,11 @@ var last_image_placed = 2,
 
 $("body").append('<div id="background_layer"><div class="top"></div><div class="bottom"></div></div><div id="background_shader"></div>');
 
+var background_store = {{{backgroundStore}}};
+
 advanceBackgroundImage = function() {
-	var target_el;
-
-	var options = {
-		root: "/img/bg",
-		ext: ".jpg",
-		min: 1,
-		max: 1
-	};
-
-	var new_background = options.root + "/" + getRandomInt(options.min, options.max) + options.ext;
+	var target_el,
+		new_background = background_store[Math.floor(Math.random()*background_store.length)];
 
 	if(last_image_placed == 2) {
 		target_el = $(".top");

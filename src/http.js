@@ -25,6 +25,7 @@ var express = require("express"),
 	exec = require("child_process").exec,
 	utils = require("./utils"),
 	iowa = require("./iowa/iowa"),
+	StaticData = require("./iowa/StaticData").data,
 	regions = require("./api/client").regions;
 
 var app = express();
@@ -113,6 +114,16 @@ app.use((req, res, next) => {
 		}
 
 		res.render("home");
+	} else if(req.path === "/js/background.js") {
+		var backgroundStore = [];
+
+		for(var champion_key in StaticData.champion) {
+			var champion = StaticData.champion[champion_key];
+			backgroundStore.push(StaticData.realm.cdn + "/img/champion/splash/" + champion.key + "_0.jpg");
+		}
+
+		res.locals.backgroundStore = JSON.stringify(backgroundStore);
+		res.render("background", {layout: false});
 	} else {
 		res.locals.error = "404: Resource not found.";
 		res.status(404).render("internal_error");

@@ -104,7 +104,7 @@ var refreshCoreInformation = () => {
 	});
 	api.static_data.championAll((data) => {
 		StaticData.data.champion = data.data;
-	}, undefined, undefined, true, ["enemytips", "image", "tags"], {
+	}, undefined, undefined, true, ["info", "stats", "image", "tags"], {
 		region: global.user_config.get("default_region")
 	});
 };

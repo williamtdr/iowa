@@ -32,6 +32,11 @@
 	top: 25px;
 }
 
+#sub-content {
+	width: 100%;
+	padding-left: 134px;
+}
+
 #level {
 	color: #c0392b;
 }
@@ -54,6 +59,10 @@
 	-moz-transition: all .25s ease;
 	-o-transition: all .25s ease;
 	transition: all .25s ease;
+}
+
+.champion > * {
+	transition: .25s;
 }
 
 .champion:hover {
@@ -92,6 +101,143 @@
 	left: 53px;
 }
 
+.champion-title {
+	font-style: italic;
+	font-size: 1.2em;
+	color: #bdc3c7;
+	position: absolute;
+	left: 106px;
+	bottom: 10px;
+	display: none;
+}
+
+.champion-title:first-letter {
+	text-transform: uppercase;
+}
+
+.expanded-champion-stats {
+	display: none;
+	background-color: #bdc3c7;
+	width: 100%;
+	height: 400px;
+	overflow: hidden;
+	margin-left: 13px;
+	margin-bottom: 10px;
+}
+
+.progress-radial {
+	float: left;
+	margin-right: 10px;
+	position: relative;
+	width: 50px;
+	height: 50px;
+	border-radius: 50%;
+	border: 2px solid #2f3439;
+}
+
+.progress-radial .overlay {
+	position: absolute;
+	width: 30px;
+	height: 30px;
+	background-color: #fffde8;
+	border-radius: 50%;
+	margin-left: 8px;
+	margin-top: 8px;
+	text-align: center;
+	line-height: 30px;
+	font-size: 1.2em;
+}
+
+.progress-0 {
+	background-image: linear-gradient(90deg, #2f3439 50%, rgba(0, 0, 0, 0) 50%, rgba(0, 0, 0, 0)), linear-gradient(90deg, #000 50%, #2f3439 50%, #2f3439);
+}
+
+.progress-5 {
+	background-image: linear-gradient(90deg, #2f3439 50%, rgba(0, 0, 0, 0) 50%, rgba(0, 0, 0, 0)), linear-gradient(108deg, #000 50%, #2f3439 50%, #2f3439);
+}
+
+.progress-10 {
+	background-image: linear-gradient(90deg, #2f3439 50%, rgba(0, 0, 0, 0) 50%, rgba(0, 0, 0, 0)), linear-gradient(126deg, #000 50%, #2f3439 50%, #2f3439);
+}
+
+.progress-15 {
+	background-image: linear-gradient(90deg, #2f3439 50%, rgba(0, 0, 0, 0) 50%, rgba(0, 0, 0, 0)), linear-gradient(144deg, #000 50%, #2f3439 50%, #2f3439);
+}
+
+.progress-20 {
+	background-image: linear-gradient(90deg, #2f3439 50%, rgba(0, 0, 0, 0) 50%, rgba(0, 0, 0, 0)), linear-gradient(162deg, #000 50%, #2f3439 50%, #2f3439);
+}
+
+.progress-25 {
+	background-image: linear-gradient(90deg, #2f3439 50%, rgba(0, 0, 0, 0) 50%, rgba(0, 0, 0, 0)), linear-gradient(180deg, #000 50%, #2f3439 50%, #2f3439);
+}
+
+.progress-30 {
+	background-image: linear-gradient(90deg, #2f3439 50%, rgba(0, 0, 0, 0) 50%, rgba(0, 0, 0, 0)), linear-gradient(198deg, #000 50%, #2f3439 50%, #2f3439);
+}
+
+.progress-35 {
+	background-image: linear-gradient(90deg, #2f3439 50%, rgba(0, 0, 0, 0) 50%, rgba(0, 0, 0, 0)), linear-gradient(216deg, #000 50%, #2f3439 50%, #2f3439);
+}
+
+.progress-40 {
+	background-image: linear-gradient(90deg, #2f3439 50%, rgba(0, 0, 0, 0) 50%, rgba(0, 0, 0, 0)), linear-gradient(234deg, #000 50%, #2f3439 50%, #2f3439);
+}
+
+.progress-45 {
+	background-image: linear-gradient(90deg, #2f3439 50%, rgba(0, 0, 0, 0) 50%, rgba(0, 0, 0, 0)), linear-gradient(252deg, #000 50%, #2f3439 50%, #2f3439);
+}
+
+.progress-50 {
+	background-image: linear-gradient(-90deg, #ff6347 50%, rgba(0, 0, 0, 0) 50%, rgba(0, 0, 0, 0)), linear-gradient(270deg, #000 50%, #2f3439 50%, #2f3439);
+}
+
+.progress-55 {
+	background-image: linear-gradient(-72deg, #ff6347 50%, rgba(0, 0, 0, 0) 50%, rgba(0, 0, 0, 0)), linear-gradient(270deg, #000 50%, #2f3439 50%, #2f3439);
+}
+
+.progress-60 {
+	background-image: linear-gradient(-54deg, #ff6347 50%, rgba(0, 0, 0, 0) 50%, rgba(0, 0, 0, 0)), linear-gradient(270deg, #000 50%, #2f3439 50%, #2f3439);
+}
+
+.progress-65 {
+	background-image: linear-gradient(-36deg, #ff6347 50%, rgba(0, 0, 0, 0) 50%, rgba(0, 0, 0, 0)), linear-gradient(270deg, #000 50%, #2f3439 50%, #2f3439);
+}
+
+.progress-70 {
+	background-image: linear-gradient(-18deg, #ff6347 50%, rgba(0, 0, 0, 0) 50%, rgba(0, 0, 0, 0)), linear-gradient(270deg, #000 50%, #2f3439 50%, #2f3439);
+}
+
+.progress-75 {
+	background-image: linear-gradient(0deg, #ff6347 50%, rgba(0, 0, 0, 0) 50%, rgba(0, 0, 0, 0)), linear-gradient(270deg, #000 50%, #2f3439 50%, #2f3439);
+}
+
+.progress-80 {
+	background-image: linear-gradient(18deg, #ff6347 50%, rgba(0, 0, 0, 0) 50%, rgba(0, 0, 0, 0)), linear-gradient(270deg, #000 50%, #2f3439 50%, #2f3439);
+}
+
+.progress-85 {
+	background-image: linear-gradient(36deg, #ff6347 50%, rgba(0, 0, 0, 0) 50%, rgba(0, 0, 0, 0)), linear-gradient(270deg, #000 50%, #2f3439 50%, #2f3439);
+}
+
+.progress-90 {
+	background-image: linear-gradient(54deg, #ff6347 50%, rgba(0, 0, 0, 0) 50%, rgba(0, 0, 0, 0)), linear-gradient(270deg, #000 50%, #2f3439 50%, #2f3439);
+}
+
+.progress-95 {
+	background-image: linear-gradient(72deg, #ff6347 50%, rgba(0, 0, 0, 0) 50%, rgba(0, 0, 0, 0)), linear-gradient(270deg, #000 50%, #2f3439 50%, #2f3439);
+}
+
+.progress-100 {
+	background-image: linear-gradient(90deg, #ff6347 50%, rgba(0, 0, 0, 0) 50%, rgba(0, 0, 0, 0)), linear-gradient(270deg, #000 50%, #2f3439 50%, #2f3439);
+}
+
+@media screen and (max-width: 996px) {
+	.champion {
+		width: 100%;
+	}
+}
+
 @media screen and (max-width: 768px) {
 	#summoner-info {
 		margin: 0;
@@ -108,5 +254,11 @@
 
 	#separator {
 		top: 25px;
+	}
+
+	#sub-content {
+		width: auto;
+		padding-left: 0;
+		padding-top: 5px;
 	}
 }

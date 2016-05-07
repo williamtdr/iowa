@@ -3,12 +3,30 @@
 {{/if}}
 <div class="row">
 {{#each champions}}
-	<div class="champion col-md-6" style="background-image: url('{{this.splashURL}}')">
+	<div class="champion col-md-6" style="background-image: url('{{this.splashURL}}')" data-id="{{this.id}}">
 		<div class="champion-footer">
 			<img src="{{this.imageURL}}" class="champion-icon">
 			<span class="champion-name">{{this.name}}</span>
 			<span class="champion-stats"><span style="color: #3498db">W {{this.outcome.won}}</span> <span style="color: #7f8c8d">·</span> <span style="color: #e74c3c">L {{this.outcome.lost}}</span><br>
 				{{this.kills.kills}}<span style="color: #bdc3c7">/</span>{{this.kills.deaths}}<span style="color: #bdc3c7">/</span>{{this.kills.assists}}</span>
+			<div class="champion-title">{{this.title}}</div>
+		</div>
+	</div>
+	<div class="expanded-champion-stats" data-id="{{this.id}}">
+		<div class="progress-radial circle-1">
+			<i class="fa fa-bolt overlay"></i>
+		</div>
+
+		<div class="progress-radial circle-2" style="background-color: #27ae60">
+			<i class="fa fa-shield overlay"></i>
+		</div>
+
+		<div class="progress-radial circle-3" style="background-color: #2980b9">
+			<i class="fa fa-magic overlay"></i>
+		</div>
+
+		<div class="progress-radial circle-4" style="background-color: #8e44ad">
+			<i class="fa fa-balance-scale overlay"></i>
 		</div>
 	</div>
 {{/each}}
