@@ -2,6 +2,7 @@
 	min-height: 400px;
 	background-color: #ecf0f1;
 	padding: 15px;
+	padding-right: 50px;
 	margin: 20px 50px;
 }
 
@@ -18,7 +19,6 @@
 }
 
 #content {
-	width: calc(100% - 128px);
 	margin-left: 128px;
 	height: 100%;
 	position: relative;
@@ -49,6 +49,16 @@
 	height: 200px;
 	margin-bottom: 10px;
 	margin-left: 13px;
+	-webkit-filter: brightness(75%);
+	-webkit-transition: all .25s ease;
+	-moz-transition: all .25s ease;
+	-o-transition: all .25s ease;
+	transition: all .25s ease;
+}
+
+.champion:hover {
+	-webkit-filter: brightness(100%);
+	cursor: pointer;
 }
 
 .champion-footer {
