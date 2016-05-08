@@ -13,19 +13,23 @@ module.exports = class RankedChampionStats {
 			won: data.stats.totalSessionsWon,
 			lost: data.stats.totalSessionsLost,
 			played: data.stats.totalSessionsPlayed,
+			rate: (data.stats.totalSessionsWon / data.stats.totalSessionsPlayed).toFixed(2),
 			ratio: (data.stats.totalSessionsWon / (data.stats.totalSessionsLost || 1)).toFixed(2)
 		};
 		this.kills = {
 			kills: data.stats.totalChampionKills,
 			assists: data.stats.totalAssists,
 			deaths: data.stats.totalDeathsPerSession,
-			ratio: ((data.stats.totalChampionKills + data.stats.totalAssists) / (data.stats.totalDeathsPerSession || 1)).toFixed(2),
-			averageKills: data.stats.totalChampionKills / this.outcome.played
+			averageKills: data.stats.totalChampionKills / this.outcome.played,
+			averageAssists: data.stats.totalAssists / this.outcome.played,
+			averageDeaths: data.stats.totalDeathsPerSession / this.outcome.played
 		};
 		this.damage = {
 			dealt: data.stats.totalDamageDealt,
 			taken: data.stats.totalDamageTaken,
 			magic: data.stats.totalPhysicalDamageDealt,
+			averageDealt: (data.stats.totalDamageDealt / (this.outcome.played * 3000)).toFixed(2),
+			averageTaken: (data.stats.totalDamageTaken / (this.outcome.played * 3000)).toFixed(2),
 			physical: data.stats.totalMagicDamageDealt,
 			ratio: (data.stats.totalDamageDealt / (data.stats.totalDamageTaken || 1)).toFixed(2)
 		};
@@ -35,7 +39,7 @@ module.exports = class RankedChampionStats {
 		};
 		this.gold = {
 			total: data.stats.totalGoldEarned,
-			average: (data.stats.totalGoldEarned / this.outcome.played).toFixed(2)
+			average: (data.stats.totalGoldEarned / (this.outcome.played * 1000)).toFixed(2)
 		};
 		this.accomplishments = {
 			totalDoubleKills: data.stats.totalDoubleKills,

@@ -94,6 +94,7 @@ app.use((req, res, next) => {
 
 			iowa.renderDataPage((data) => {
 				res.locals = data;
+				res.locals.aggregateStats = JSON.stringify(data.aggregateStats);
 
 				res.render("summoner_data", {
 					layout: false

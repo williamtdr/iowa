@@ -11,7 +11,7 @@ var api = require("./../api/api"),
 	StaticData = require("./StaticData"),
 	RankedChampionStats = require("./class/RankedChampionStats"),
 	SummonerProfile = require("./class/SummonerProfile"),
-	RankedBestChampion = require("./algorithm/RankedBestChampions");
+	RankedWithMastery = require("./algorithm/RankedWithMastery");
 
 function preflight(region, name, id) {
 	if(region !== undefined && !regions[region])
@@ -55,10 +55,22 @@ module.exports = {
 	renderDataPage: (callback, region, id) => {
 		var response = {},
 			check = preflight(region, false, id),
-			champion, text;
+			ranked_stats = {},
+			responded = false,
+			champion_mastery, champion, text;
 
 		if(check)
 			return callback(check);
+
+		var checkSufficentData = () => {
+			if(!champion_mastery || JSON.stringify(ranked_stats) === "{}")
+				return;
+
+			response = RankedWithMastery(ranked_stats, champion_mastery);
+
+			if(!responded)
+				callback(response);
+		};
 
 		api.stats.ranked((data) => {
 			if((data.type === "error" && data.code === 404) || !data.champions) {
@@ -66,30 +78,26 @@ module.exports = {
 					text: "No ranked matches found for this player."
 				};
 
+				responded = true;
 				return callback(response);
 			}
-
-			var champion_stats = {},
-				champion_stats_array = [];
 
 			for(var champion of data.champions) {
 				if(champion === null || champion.id === 0)
 					continue;
 
-				champion_stats[champion.id] = new RankedChampionStats(champion);
-				champion_stats_array.push(champion_stats[champion.id]);
+				ranked_stats[champion.id] = new RankedChampionStats(champion);
 			}
 
-			var sorted_champions = [],
-				order = RankedBestChampion(champion_stats_array);
-
-			for(var el of order)
-				sorted_champions.push(champion_stats[el]);
-
-			response.champions = sorted_champions;
-
-			callback(response);
+			checkSufficentData();
 		}, id, undefined, undefined, {
+			region: region
+		});
+
+		api.championMastery.getAll((data) => {
+			champion_mastery = data;
+			checkSufficentData();
+		}, id, {
 			region: region
 		});
 	}

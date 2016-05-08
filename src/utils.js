@@ -22,10 +22,10 @@ module.exports = {
 			b = (b === "" ? b : get(b, key));
 
 			// Decimals cause inaccurate sort, assume two
-			if(a * 100 > b * 100)
+			if(a * 100 > b * (1e16))
 				return -1;
 
-			if(a * 100 < b * 100)
+			if(a * 100 < b * (1e16))
 				return 1;
 
 			return 0;

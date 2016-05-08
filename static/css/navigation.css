@@ -28,10 +28,11 @@ nav hr {
 footer {
 	width: 100%;
 	height: 60px;
-	position: absolute;
+	margin-top: 30px;
+	border-top: #95a5a6 1px solid;
 	padding: 10px;
-	bottom: 0;
 	z-index: 2000;
-	background-color: #34495e;
+	position: relative;
 	text-align: center;
+	display: none;
 }

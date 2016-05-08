@@ -1,8 +1,8 @@
 <nav class="animsition fade-in-sm" data-animsition-in-duration="750">
-	<div id="logo">
+	<a id="logo" href="/">
 		<div id="logo_top">I. o. W. A.</div>
 		<div id="logo_bottom">Institute of War Aptitude</div>
-	</div>
+	</a>
 </nav>
 <div class="animsition zoom-in-sm container" id="main-content" data-animsition-in-duration="750">
 	<div id="summoner-info">
@@ -11,6 +11,21 @@
 			<div id="name">{{name}}</div>
 			<span id="level">LEVEL {{level}}</span>
 			<hr id="separator">
+		</div>
+		<div id="sidebar">
+			<b>RANKED PLAY</b><br>
+			Wins: <span id="ranked-won"></span><br>
+			Losses: <span id="ranked-lost"></span><br>
+			Total: <span id="ranked-total"></span><br><br>
+			<b>COMBAT</b><br>
+			Kills: <span id="ranked-kills"></span><br>
+			Deaths: <span id="ranked-deaths"></span><br>
+			Assists: <span id="ranked-assists"></span><br><br>
+			<b>DAMAGE</b><br>
+			Dealt: <span id="ranked-damage-dealt"></span><br>
+			Taken: <span id="ranked-damage-taken"></span><br><br>
+			<b>OTHER</b><br>
+			Gold: <span id="ranked-gold"></span>
 		</div>
 		<div id="sub-content">
 			Loading summoner info...

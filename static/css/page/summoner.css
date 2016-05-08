@@ -1,6 +1,6 @@
 #summoner-info {
 	min-height: 400px;
-	background-color: #ecf0f1;
+	background-color: rgba(236,240,241,0.95);
 	padding: 15px;
 	padding-right: 50px;
 	margin: 20px 50px;
@@ -34,6 +34,8 @@
 
 #sub-content {
 	width: 100%;
+	color: black;
+	margin-top: 10px;
 	padding-left: 134px;
 }
 
@@ -41,9 +43,11 @@
 	color: #c0392b;
 }
 
-#sub-content {
+#sidebar {
+	width: 119px;
+	position: absolute;
 	color: black;
-	margin-top: 10px;
+	margin-top: 60px;
 }
 
 .champion {
@@ -259,6 +263,9 @@
 	#sub-content {
 		width: auto;
 		padding-left: 0;
-		padding-top: 5px;
+	}
+
+	#sidebar {
+		display: none;
 	}
 }

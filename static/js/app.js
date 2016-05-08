@@ -25,5 +25,12 @@ $(document).ready(function() {
 		browser: ["animation-duration", "-webkit-animation-duration"]
 	}).on("animsition.inStart", function() {
 		$(".animsition").show(); // Prevents content showing pre-animation
+
+		$(function() {
+			$("footer").css({
+				position: "absolute",
+				bottom: 0
+			}).show();
+		});
 	});
 });

@@ -66,8 +66,6 @@ function openChampionTile(el) {
 	}, 250);
 }
 
-setCircleValue(setCircleValue)
-
 function onChampionTileClick(ev) {
 	var el = $(this);
 	if(el.data("champion-tile-open")) {
@@ -82,5 +80,32 @@ function loadSummonerInfo(region, id) {
 	$.get("/data/" + region + "/" + id, function(data) {
 		$("#sub-content").html(data);
 		$(".champion").unbind().click(onChampionTileClick);
+		$("#ranked-won").html(aggregateStats.outcome.won);
+		$("#ranked-lost").html(aggregateStats.outcome.lost);
+		$("#ranked-total").html(aggregateStats.outcome.played);
+		$("#ranked-kills").html(aggregateStats.kills.kills);
+		$("#ranked-assists").html(aggregateStats.kills.assists);
+		$("#ranked-deaths").html(aggregateStats.kills.deaths);
+		$("#ranked-damage-dealt").html(nFormatter(aggregateStats.damage.dealt));
+		$("#ranked-damage-taken").html(nFormatter(aggregateStats.damage.taken));
+		$("#ranked-gold").html(nFormatter(aggregateStats.gold));
+		$("#sidebar").show();
 	});
+}
+
+function nFormatter(num) {
+	var si = [
+		{ value: 1E18, symbol: "E" },
+		{ value: 1E15, symbol: "P" },
+		{ value: 1E12, symbol: "T" },
+		{ value: 1E9,  symbol: "G" },
+		{ value: 1E6,  symbol: "M" },
+		{ value: 1E3,  symbol: "k" }
+	], i;
+	for (i = 0; i < si.length; i++) {
+		if (num >= si[i].value) {
+			return (num / si[i].value).toFixed(1).replace(/\.0+$|(\.[0-9]*[1-9])0+$/, "$1") + si[i].symbol;
+		}
+	}
+	return num.toString();
 }

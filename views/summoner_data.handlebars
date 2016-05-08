@@ -1,5 +1,7 @@
 {{#if error}}
 	<span style="color: #c0392b">{{error.text}}</span>
+{{else}}
+	<h3 id="champion-data-header">Top Champions</h3>
 {{/if}}
 <div class="row">
 {{#each champions}}
@@ -13,21 +15,25 @@
 		</div>
 	</div>
 	<div class="expanded-champion-stats" data-id="{{this.id}}">
-		<div class="progress-radial circle-1">
-			<i class="fa fa-bolt overlay"></i>
+		<div class="progress-radial progress-50 circle-1">
+			<i class="fa fa-bolt overlay" style="background-color: #c0392b"></i>
 		</div>
 
-		<div class="progress-radial circle-2" style="background-color: #27ae60">
-			<i class="fa fa-shield overlay"></i>
+		<div class="progress-radial progress-50 circle-2">
+			<i class="fa fa-shield overlay" style="background-color: #27ae60"></i>
 		</div>
 
-		<div class="progress-radial circle-3" style="background-color: #2980b9">
-			<i class="fa fa-magic overlay"></i>
+		<div class="progress-radial progress-50 circle-3">
+			<i class="fa fa-magic overlay" style="background-color: #2980b9"></i>
 		</div>
 
-		<div class="progress-radial circle-4" style="background-color: #8e44ad">
-			<i class="fa fa-balance-scale overlay"></i>
+		<div class="progress-radial progress-50 circle-4">
+			<i class="fa fa-balance-scale overlay" style="background-color: #8e44ad"></i>
 		</div>
 	</div>
 {{/each}}
 </div>
+
+<script>
+	var aggregateStats = {{{aggregateStats}}};
+</script>
