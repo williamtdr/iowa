@@ -26,13 +26,14 @@ nav hr {
 }
 
 footer {
+	border-top: 1px solid #bdc3c7;
 	width: 100%;
 	height: 60px;
 	margin-top: 30px;
-	border-top: #95a5a6 1px solid;
 	padding: 10px;
 	z-index: 2000;
-	position: relative;
+	position: absolute;
+	bottom: 0;
 	text-align: center;
 	display: none;
 }

@@ -6,6 +6,23 @@
 <div class="row">
 {{#each champions}}
 	<div class="champion col-md-6" style="background-image: url('{{this.splashURL}}')" data-id="{{this.id}}">
+		<div class="champion-info">
+			<div class="indicator indicator-1" style="color: #e74c3c">
+				<i class="fa fa-bolt"></i>
+			</div>
+
+			<div class="indicator indicator-2" style="color: #2ecc71">
+				<i class="fa fa-shield"></i>
+			</div>
+
+			<div class="indicator indicator-3" style="color: #3498db">
+				<i class="fa fa-magic"></i>
+			</div>
+
+			<div class="indicator indicator-4" style="color: #9b59b6">
+				<i class="fa fa-balance-scale"></i>
+			</div>
+		</div>
 		<div class="champion-footer">
 			<img src="{{this.imageURL}}" class="champion-icon">
 			<span class="champion-name">{{this.name}}</span>
@@ -15,25 +32,20 @@
 		</div>
 	</div>
 	<div class="expanded-champion-stats" data-id="{{this.id}}">
-		<div class="progress-radial progress-50 circle-1">
-			<i class="fa fa-bolt overlay" style="background-color: #c0392b"></i>
-		</div>
-
-		<div class="progress-radial progress-50 circle-2">
-			<i class="fa fa-shield overlay" style="background-color: #27ae60"></i>
-		</div>
-
-		<div class="progress-radial progress-50 circle-3">
-			<i class="fa fa-magic overlay" style="background-color: #2980b9"></i>
-		</div>
-
-		<div class="progress-radial progress-50 circle-4">
-			<i class="fa fa-balance-scale overlay" style="background-color: #8e44ad"></i>
+		<div class="champion-info-bar">
+			{{#each this.tags}}
+				<div class="champion-tag">{{this}}</div>
+			{{/each}}
 		</div>
 	</div>
 {{/each}}
 </div>
 
 <script>
-	var aggregateStats = {{{aggregateStats}}};
+	var aggregateStats = {{{aggregateStats}}},
+		championInfo = {{{championInfo}}};
+
+	{{#if champions}}
+	$("#sidebar").show();
+	{{/if}}
 </script>

@@ -12,6 +12,22 @@ var addFactor = (result, data, factor) => {
 	}
 };
 
+function formatChampionInfo(input) {
+	var output = {};
+
+	for(var key in input) {
+		output[key] = {};
+		output[key].info = input[key].info;
+		output[key].gold = input[key].gold;
+		output[key].damage = input[key].damage;
+		output[key].outcome = input[key].outcome;
+		output[key].kills = input[key].kills;
+		output[key].creepScore = input[key].creepScore;
+	}
+	
+	return output;
+}
+
 function evaluateBasedOnTag(tag, tag_priority, championMasteryPoints, championRankedStats) {
 	var result = 0;
 
@@ -21,50 +37,50 @@ function evaluateBasedOnTag(tag, tag_priority, championMasteryPoints, championRa
 			result += championRankedStats.kills.averageKills * 0.8;
 			result += championRankedStats.kills.averageDeaths * -0.4;
 			result += championRankedStats.kills.averageAssists * 0.2;
-			result += championRankedStats.damage.averageDealt * 0.6;
-			result += championRankedStats.damage.averageTaken * -0.3;
-			result += championRankedStats.gold.average * 0.1;
+			result += (championRankedStats.damage.averageDealt / 3000) * 0.6;
+			result += (championRankedStats.damage.averageTaken / 3000) * -0.3;
+			result += (championRankedStats.gold.average / 1000) * 0.1;
 		break;
 		case "Support":
 			result += championRankedStats.kills.averageKills * 0.3;
 			result += championRankedStats.kills.averageDeaths * -0.1;
 			result += championRankedStats.kills.averageAssists * 0.6;
-			result += championRankedStats.damage.averageDealt * 0.3;
-			result += championRankedStats.damage.averageTaken * -0.2;
-			result += championRankedStats.gold.average * 0.1;
+			result += (championRankedStats.damage.averageDealt / 3000) * 0.3;
+			result += (championRankedStats.damage.averageTaken / 3000) * -0.2;
+			result += (championRankedStats.gold.average / 1000) * 0.1;
 			result = result * 1.05;
 		break;
 		case "Tank":
 			result += championRankedStats.kills.averageKills * 0.4;
 			result += championRankedStats.kills.averageDeaths * -0.2;
 			result += championRankedStats.kills.averageAssists * 0.3;
-			result += championRankedStats.damage.averageDealt * 0.4;
-			result += championRankedStats.gold.average * 0.1;
+			result += (championRankedStats.damage.averageDealt / 3000) * 0.4;
+			result += (championRankedStats.gold.average / 1000) * 0.1;
 		break;
 		case "Assassin":
 			result += championRankedStats.kills.averageKills;
 			result += championRankedStats.kills.averageDeaths * -0.4;
 			result += championRankedStats.kills.averageAssists * 0.2;
-			result += championRankedStats.damage.averageDealt * 0.4;
-			result += championRankedStats.damage.averageTaken * -0.3;
-			result += championRankedStats.gold.average * 0.1;
+			result += (championRankedStats.damage.averageDealt / 3000) * 0.4;
+			result += (championRankedStats.damage.averageTaken / 3000) * -0.3;
+			result += (championRankedStats.gold.average / 1000) * 0.1;
 			result = result * 0.95;
 		break;
 		case "Mage":
 			result += championRankedStats.kills.averageKills * 0.6;
 			result += championRankedStats.kills.averageDeaths * -0.3;
 			result += championRankedStats.kills.averageAssists * 0.4;
-			result += championRankedStats.damage.averageDealt * 0.5;
-			result += championRankedStats.damage.averageTaken * -0.3;
-			result += championRankedStats.gold.average * 0.1;
+			result += (championRankedStats.damage.averageDealt / 3000) * 0.5;
+			result += (championRankedStats.damage.averageTaken / 3000) * -0.3;
+			result += (championRankedStats.gold.average / 1000) * 0.1;
 		break;
 		case "Marksman":
 			result += championRankedStats.kills.averageKills * 0.9;
 			result += championRankedStats.kills.averageDeaths * -0.5;
 			result += championRankedStats.kills.averageAssists * 0.4;
-			result += championRankedStats.damage.averageDealt * 0.6;
-			result += championRankedStats.damage.averageTaken * -0.5;
-			result += championRankedStats.gold.average * 0.1;
+			result += (championRankedStats.damage.averageDealt / 3000) * 0.6;
+			result += (championRankedStats.damage.averageTaken / 3000) * -0.5;
+			result += (championRankedStats.gold.average / 1000) * 0.1;
 			result = result * 0.95;
 	}
 
@@ -143,6 +159,7 @@ module.exports = (ranked_stats, champion_mastery) => {
 
 	return {
 		champions: result_populated,
-		aggregateStats: aggregateStats
+		aggregateStats: aggregateStats,
+		championInfo: formatChampionInfo(ranked_stats)
 	};
 };

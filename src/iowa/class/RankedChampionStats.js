@@ -28,8 +28,8 @@ module.exports = class RankedChampionStats {
 			dealt: data.stats.totalDamageDealt,
 			taken: data.stats.totalDamageTaken,
 			magic: data.stats.totalPhysicalDamageDealt,
-			averageDealt: (data.stats.totalDamageDealt / (this.outcome.played * 3000)).toFixed(2),
-			averageTaken: (data.stats.totalDamageTaken / (this.outcome.played * 3000)).toFixed(2),
+			averageDealt: (data.stats.totalDamageDealt / this.outcome.played).toFixed(2),
+			averageTaken: (data.stats.totalDamageTaken / this.outcome.played).toFixed(2),
 			physical: data.stats.totalMagicDamageDealt,
 			ratio: (data.stats.totalDamageDealt / (data.stats.totalDamageTaken || 1)).toFixed(2)
 		};
@@ -39,7 +39,7 @@ module.exports = class RankedChampionStats {
 		};
 		this.gold = {
 			total: data.stats.totalGoldEarned,
-			average: (data.stats.totalGoldEarned / (this.outcome.played * 1000)).toFixed(2)
+			average: (data.stats.totalGoldEarned / this.outcome.played).toFixed(2)
 		};
 		this.accomplishments = {
 			totalDoubleKills: data.stats.totalDoubleKills,
