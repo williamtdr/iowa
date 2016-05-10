@@ -18,6 +18,36 @@
 	margin-right: 5px;
 }
 
+.social-icons {
+	margin-top: -30px;
+	margin-bottom: 25px;
+}
+
+.social-icons > a > i {
+	cursor: pointer;
+	margin-left: 10px;
+	display: inline-block;
+	float: right;
+	font-size: 1.4em;
+	transition: .25s;
+}
+
+.fa-twitter {
+	color: #2980b9;
+}
+
+.fa-twitter:hover {
+	color: #3498db;
+}
+
+.fa-facebook {
+	color: #8e44ad;
+}
+
+.fa-facebook:hover {
+	color: #9b59b6;
+}
+
 #content {
 	margin-left: 128px;
 	height: 100%;
