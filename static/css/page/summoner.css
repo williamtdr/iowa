@@ -201,16 +201,16 @@ footer {
 	font-family: "Raleway", sans-serif;
 }
 
-.champion-sidebar > ul {
+.champion-sidebar > * > ul {
 	list-style-type: none;
 	padding-left: 0;
 }
 
-.champion-sidebar > ul > li > a {
+.champion-sidebar > * > ul > li > a {
 	color: #2980b9;
 }
 
-.champion-sidebar > ul > li > a:hover {
+.champion-sidebar > * > ul > li > a:hover {
 	color: #3498db;
 }
 
@@ -285,6 +285,10 @@ footer {
 	margin-bottom: 5px;
 	margin-left: 10px;
 	color: white;
+}
+
+.per-level {
+	color: #f1c40f;
 }
 
 /* Responsive Styles */

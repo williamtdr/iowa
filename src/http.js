@@ -40,7 +40,7 @@ app.engine("handlebars", exphbs({
 			if(typeof input === "string")
 				input = parseFloat(input);
 
-			return input.toFixed(1);
+			return input.toFixed(1).toString() === input.toString() + ".0" ? input : input.toFixed(1);
 		},
 		numberFormatter: (input) => {
 			var si = [

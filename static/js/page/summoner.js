@@ -2,7 +2,8 @@
  * Loaded directly on summoner profile pages.
  */
 
-var existing_spinners = {};
+var existing_spinners = {},
+	sidebar_archive = {};
 
 function closeChampionTile(el) {
 	var id = el.data("id").toString();
@@ -39,6 +40,16 @@ function closeChampionTile(el) {
 	});
 }
 
+function switchSidebar(id, state) {
+	var sidebar = $(".expanded-champion-stats[data-id=\"" + id + "\"]").find(".champion-sidebar");
+
+	if("state" === "none")
+		return sidebar.hide();
+
+	sidebar.show().find(".sidebar").hide();
+	sidebar.find(".sidebar-" + state).show();
+}
+
 function openChampionTile(el) {
 	var id = el.data("id").toString();
 
@@ -67,6 +78,10 @@ function openChampionTile(el) {
 	info_area.show().animate({
 		height: "430px"
 	}, 500);
+	if(sidebar_archive[id]) {
+		info_area.find(".champion-sidebar").html(sidebar_archive[id]);
+		delete sidebar_archive[id];
+	}
 	el.find(".champion-stats").animate({
 		opacity: 0
 	}, 125, function() {
@@ -88,7 +103,7 @@ function openChampionTile(el) {
 			var spell = championInfo[parseInt(id)].spells[index];
 			info_text += "<div class=\"spell-image\" style=\"background-image: url('" + baseCacheUrl + "/img/sprite/" + spell.image.sprite + "'); background-position: -" + spell.image.x + "px -" + spell.image.y + "px\"></div><div class='spell-name'>" + spell.name + "</div><div class='spell-cost'>" + spell.resource.replace("{{ cost }}", spell.cost.join("/")) + "</div><div id='spell-description'>" + spell.sanitizedDescription.replace("\"", "&#34;") + "</div><br>\n";
 		}
-		console.log(info_text);
+
 		tabs.find(".tab-info").html(info_text);
 		tabs.find(".tab-spotlight div").html("<iframe width=\"560\" height=\"315\" src=\"" + championInfo[parseInt(id)].youtube_link.replace("watch?v=", "embed/") + "\" frameborder=\"0\" allowfullscreen></iframe>");
 

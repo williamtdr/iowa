@@ -41,43 +41,59 @@
 			{{/each}}
 		</div>
 		<div class="champion-sidebar">
-			<div class="champion-sidebar-header">
-				COMBAT
+			<div class="sidebar sidebar-main">
+				<div class="champion-sidebar-header">
+					COMBAT
+				</div>
+				{{roundOne this.kills.averageKills}} <span class="champion-sidebar-suffix" style="color: #3498db">kills</span><br>
+				{{roundOne this.kills.averageAssists}} <span class="champion-sidebar-suffix" style="color: #9b59b6">assists</span><br>
+				{{roundOne this.kills.averageDeaths}} <span class="champion-sidebar-suffix" style="color: #e74c3c">deaths</span>
+				<div class="champion-sidebar-header">
+					WINS
+				</div>
+				{{this.outcome.won}} <span class="champion-sidebar-suffix" style="color: #2ecc71">games won</span><br>
+				{{this.outcome.lost}} <span class="champion-sidebar-suffix" style="color: #e74c3c">games lost</span><br>
+				<div class="champion-sidebar-header">
+					OTHER
+				</div>
+				{{numberFormatter this.gold.average}} <span class="champion-sidebar-suffix" style="color: #f1c40f">gold</span><br>
+				{{numberFormatter this.creepScore.average}} <span class="champion-sidebar-suffix" style="color: #2ecc71">minion kills</span><br>
+				{{numberFormatter this.damage.averageDealt}} <span class="champion-sidebar-suffix" style="color: #3498db">damage dealt</span><br>
+				{{numberFormatter this.damage.averageTaken}} <span class="champion-sidebar-suffix" style="color: #e74c3c">damage taken</span><br>
+				{{numberFormatter this.turrets.average}} <span class="champion-sidebar-suffix" style="color: #1abc9c">turrets killed</span><br>
+				<div class="champion-sidebar-header">
+					LINKS
+				</div>
+				<ul>
+					<li><a target="_blank" href="http://gameinfo.na.leagueoflegends.com/en/game-info/champions/{{{noSpacesLowercase this.name}}}/">Official Info Page</a></li>
+					<li><a target="_blank" href="http://leagueoflegends.wikia.com/wiki/{{{spaceToUnderscore this.name}}}">Wikia</a></li>
+				</ul>
 			</div>
-			{{roundOne this.kills.averageKills}} <span class="champion-sidebar-suffix" style="color: #3498db">kills</span><br>
-			{{roundOne this.kills.averageAssists}} <span class="champion-sidebar-suffix" style="color: #9b59b6">assists</span><br>
-			{{roundOne this.kills.averageDeaths}} <span class="champion-sidebar-suffix" style="color: #e74c3c">deaths</span>
-			<div class="champion-sidebar-header">
-				WINS
+			<div class="sidebar sidebar-champion">
+				<div class="champion-sidebar-header">
+					STATS
+				</div>
+				{{roundOne this.stats.armor}} <span class="per-level">+ {{roundOne this.stats.armorperlevel}}</span> <span class="champion-sidebar-suffix" style="color: #3498db">armor</span><br>
+				{{roundOne this.stats.attackdamage}} <span class="per-level">+ {{roundOne this.stats.attackdamageperlevel}}</span> <span class="champion-sidebar-suffix" style="color: #e74c3c">damage</span><br>
+				<span class="per-level">{{roundOne this.stats.attackspeedperlevel}}%</span> <span class="champion-sidebar-suffix" style="color: #e74c3c">attack speed</span><br>
+				<br>
+				{{roundOne this.stats.mp}} <span class="per-level">+ {{roundOne this.stats.mpperlevel}}</span> <span class="champion-sidebar-suffix" style="color: #3498db">mana</span><br>
+				{{roundOne this.stats.mpregen}} <span class="per-level">+ {{roundOne this.stats.mpregenperlevel}}</span> <span class="champion-sidebar-suffix" style="color: #3498db">mana regen</span><br>
+				<br>
+				{{roundOne this.stats.hp}} <span class="per-level">+ {{roundOne this.stats.hpperlevel}}</span> <span class="champion-sidebar-suffix" style="color: #2ecc71">health</span><br>
+				{{roundOne this.stats.hpregen}} <span class="per-level">+ {{roundOne this.stats.hpregenperlevel}}</span> <span class="champion-sidebar-suffix" style="color: #2ecc71">health regen</span><br>
+				<br>
+				{{roundOne this.stats.crit}} <span class="per-level">+ {{roundOne this.stats.critperlevel}}</span> <span class="champion-sidebar-suffix" style="color: #e67e22">crit. %</span><br>
+				{{roundOne this.stats.attackrange}} <span class="champion-sidebar-suffix" style="color: #f1c40f">attack range</span><br>
+				{{roundOne this.stats.movespeed}} <span class="champion-sidebar-suffix" style="color: #e67e22">movespeed</span><br>
 			</div>
-			{{this.outcome.won}} <span class="champion-sidebar-suffix" style="color: #2ecc71">games won</span><br>
-			{{this.outcome.lost}} <span class="champion-sidebar-suffix" style="color: #e74c3c">games lost</span><br>
-			<div class="champion-sidebar-header">
-				OTHER
-			</div>
-			{{numberFormatter this.gold.average}} <span class="champion-sidebar-suffix" style="color: #f1c40f">gold</span><br>
-			{{numberFormatter this.creepScore.average}} <span class="champion-sidebar-suffix" style="color: #2ecc71">minion kills</span><br>
-			{{numberFormatter this.damage.averageDealt}} <span class="champion-sidebar-suffix" style="color: #3498db">damage dealt</span><br>
-			{{numberFormatter this.damage.averageTaken}} <span class="champion-sidebar-suffix" style="color: #e74c3c">damage taken</span><br>
-			{{numberFormatter this.turrets.average}} <span class="champion-sidebar-suffix" style="color: #1abc9c">turrets killed</span><br>
-			<div class="champion-sidebar-header">
-				LINKS
-			</div>
-			<ul>
-				<li><a target="_blank" href="http://gameinfo.na.leagueoflegends.com/en/game-info/champions/{{{noSpacesLowercase this.name}}}/">Official Info Page</a></li>
-				<li><a target="_blank" href="http://leagueoflegends.wikia.com/wiki/{{{spaceToUnderscore this.name}}}">Wikia</a></li>
-			</ul>
 		</div>
 		<div class="champion-tabbed-content" data-id="{{this.id}}">
 			<div class="tab-spotlight">
 				<div class="embed-responsive embed-responsive-16by9"></div>
 			</div>
-			<div class="tab-info tab-padded">
-				This is the info tab
-			</div>
-			<div class="tab-your-stats tab-padded">
-				Your stats tab
-			</div>
+			<div class="tab-info tab-padded"></div>
+			<div class="tab-your-stats tab-padded"></div>
 		</div>
 	</div>
 {{/each}}
@@ -97,7 +113,8 @@
 			return false;
 
 		var old_tab = $(".champion-tab-selected").removeClass("champion-tab-selected").attr("class").split(' '),
-			new_tab = $(this).attr("class").split(' ');
+			new_tab = $(this).attr("class").split(' '),
+			id = $(this).parent().parent().find(".champion-tabbed-content").data("id");
 
 		old_tab.splice(old_tab.indexOf("champion-tab"), 1);
 		new_tab.splice(new_tab.indexOf("champion-tab"), 1);
@@ -105,5 +122,16 @@
 		$(this).parent().parent().find(".champion-tabbed-content").find("." + old_tab[0]).hide();
 		$(this).parent().parent().find(".champion-tabbed-content").find("." + new_tab[0]).show();
 		$(this).addClass("champion-tab-selected");
+
+		switch(new_tab[0]) {
+			case "tab-spotlight":
+				switchSidebar(id, "main");
+			break;
+			case "tab-info":
+				switchSidebar(id, "champion");
+			break;
+			case "tab-your-stats":
+				switchSidebar(id, "none");
+		}
 	});
 </script>
