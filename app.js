@@ -7,8 +7,9 @@
  * 
  * Institute of War Aptitude
  * 
- * Web-based tool to give tips to players based on their match history
- * and profile, with an emphasis on champion mastery and related champions.
+ * Web-based tool to give insight to players based on their ranked match statistics
+ * and champion mastery data, with tools to learn about the champion and their
+ * performance with it.
  * Built by williamtdr & Kellvas (NA) for the Riot API Challenge 2016.
  *
  * This file validates the configuration then launches the main app.
