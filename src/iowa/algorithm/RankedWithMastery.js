@@ -140,6 +140,8 @@ module.exports = (ranked_stats, champion_mastery) => {
 		aggregateStats.damage.taken += champion.damage.taken;
 		aggregateStats.gold += champion.gold.total;
 
+		ranked_stats[champion_id].mastery = champion_mastery[champion_id];
+
 		for(var tag_priority in champion.tags)
 			result[champion.id] += evaluateBasedOnTag(champion.tags[tag_priority], champion.tags.length === 1 ? -1 : tag_priority, masteryScore, champion);
 	}

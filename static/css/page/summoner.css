@@ -154,6 +154,7 @@
 	overflow: hidden;
 	margin-left: 13px;
 	margin-bottom: 10px;
+	position: relative;
 }
 
 footer {
@@ -287,6 +288,11 @@ footer {
 	color: white;
 }
 
+.tab-your-stats.tab-padded {
+	width: 100%;
+	position: absolute;
+}
+
 .spell-image {
 	width: 48px;
 	height: 48px;
@@ -328,7 +334,7 @@ footer {
 	}
 
 	.champion-sidebar {
-		display: none;
+		display: none !important;
 	}
 
 	.champion-tabbed-content {
@@ -347,6 +353,20 @@ footer {
 }
 
 @media screen and (max-width: 768px) {
+	.champion-tabbed-content > .tab-spotlight {
+		width: 100%;
+	}
+	
+	.social-icons {
+		display: none;
+	}
+
+	.champion-tabbed-content > div {
+		overflow: auto;
+		width: calc(100% - 65px);
+		position: absolute;
+	}
+
 	.hidden-on-mobile {
 		display: none;
 	}
