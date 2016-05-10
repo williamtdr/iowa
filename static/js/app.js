@@ -28,6 +28,8 @@ $(document).ready(function() {
 
 		$(".twitter").attr("href", "https://twitter.com/intent/tweet?text=Check%20out%20my%20profile%20on%20the%20Institute%20of%20War%20Aptitude!%20http%3A%2F%2Fiowa.tdr.moe" + window.location.pathname);
 
+		$(".summoner-name-submit").focus();
+
 		$(function() {
 			$("footer").css({
 				position: "absolute",
