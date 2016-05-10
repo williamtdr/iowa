@@ -18,7 +18,7 @@ function closeChampionTile(el) {
 				opacity: 1
 			}, 250);
 
-			el.data("champion-tile-open", false);
+			el.data("open", false);
 			el.css({
 				width: "",
 				height: "",
@@ -43,7 +43,14 @@ function closeChampionTile(el) {
 function openChampionTile(el) {
 	var id = el.data("id").toString();
 
-	el.data("champion-tile-open", true);
+	$(".champion").each(function(index, item) {
+		var el = $(item);
+
+		if(el.data("open"))
+			closeChampionTile(el);
+	});
+
+	el.data("open", true);
 	el.css({
 		width: "100%",
 		height: "300px",
@@ -54,11 +61,13 @@ function openChampionTile(el) {
 		height: "72px"
 	});
 	var info_area = $(".expanded-champion-stats[data-id=\"" + id + "\"]"),
+		tabs = $(".champion-tabbed-content[data-id=\"" + id + "\"]"),
 		indicators = el.find(".champion-info");
 
+	tabs.find(".tab-content-spotlight div").html("<iframe width=\"560\" height=\"315\" src=\"" + championInfo[parseInt(id)].youtube_link.replace("watch?v=", "v/") + "\" frameborder=\"0\" allowfullscreen></iframe>");
 	indicators.show();
 	info_area.show().animate({
-		height: "400px"
+		height: "430px"
 	}, 500);
 	el.find(".champion-stats").animate({
 		opacity: 0
@@ -92,7 +101,7 @@ function openChampionTile(el) {
 
 function onChampionTileClick(ev) {
 	var el = $(this);
-	if(el.data("champion-tile-open")) {
+	if(el.data("open")) {
 		closeChampionTile(el);
 		return false;
 	}

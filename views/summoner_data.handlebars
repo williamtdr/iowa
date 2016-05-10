@@ -33,9 +33,45 @@
 	</div>
 	<div class="expanded-champion-stats" data-id="{{this.id}}">
 		<div class="champion-info-bar">
+			<div class="champion-tab champion-tab-selected tab-spotlight">SPOTLIGHT</div>
+			<div class="champion-tab tab-info">INFO</div>
+			<div class="champion-tab tab-your-stats"><span class="hidden-on-mobile">YOUR </span>STATS</div>
 			{{#each this.tags}}
 				<div class="champion-tag">{{this}}</div>
 			{{/each}}
+		</div>
+		<div class="champion-sidebar">
+			<div class="champion-sidebar-header">
+				COMBAT
+			</div>
+			{{roundOne this.kills.averageKills}} <span class="champion-sidebar-suffix" style="color: #3498db">kills</span><br>
+			{{roundOne this.kills.averageAssists}} <span class="champion-sidebar-suffix" style="color: #9b59b6">assists</span><br>
+			{{roundOne this.kills.averageDeaths}} <span class="champion-sidebar-suffix" style="color: #e74c3c">deaths</span>
+			<div class="champion-sidebar-header">
+				WINS
+			</div>
+			{{this.outcome.won}} <span class="champion-sidebar-suffix" style="color: #2ecc71">games won</span><br>
+			{{this.outcome.lost}} <span class="champion-sidebar-suffix" style="color: #e74c3c">games lost</span><br>
+			<div class="champion-sidebar-header">
+				OTHER
+			</div>
+			{{numberFormatter this.gold.average}} <span class="champion-sidebar-suffix" style="color: #f1c40f">gold</span><br>
+			{{numberFormatter this.creepScore.average}} <span class="champion-sidebar-suffix" style="color: #2ecc71">minion kills</span><br>
+			{{numberFormatter this.damage.averageDealt}} <span class="champion-sidebar-suffix" style="color: #3498db">damage dealt</span><br>
+			{{numberFormatter this.damage.averageTaken}} <span class="champion-sidebar-suffix" style="color: #e74c3c">damage taken</span><br>
+			{{numberFormatter this.turrets.average}} <span class="champion-sidebar-suffix" style="color: #1abc9c">turrets killed</span><br>
+			<div class="champion-sidebar-header">
+				LINKS
+			</div>
+			<ul>
+				<li><a target="_blank" href="http://gameinfo.na.leagueoflegends.com/en/game-info/champions/{{{noSpacesLowercase this.name}}}/">Official Info Page</a></li>
+				<li><a target="_blank" href="http://leagueoflegends.wikia.com/wiki/{{{spaceToUnderscore this.name}}}">Wikia</a></li>
+			</ul>
+		</div>
+		<div class="champion-tabbed-content" data-id="{{this.id}}">
+			<div class="tab-content-spotlight">
+				<div class="embed-responsive embed-responsive-16by9"></div>
+			</div>
 		</div>
 	</div>
 {{/each}}

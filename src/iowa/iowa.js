@@ -9,6 +9,7 @@ var api = require("./../api/api"),
 	times = cache.times,
 	cacheEngine = cache.engine,
 	StaticData = require("./StaticData"),
+	Config = require("../config"),
 	RankedChampionStats = require("./class/RankedChampionStats"),
 	SummonerProfile = require("./class/SummonerProfile"),
 	RankedWithMastery = require("./algorithm/RankedWithMastery");
@@ -112,6 +113,8 @@ var refreshCoreInformation = () => {
 	});
 	api.static_data.championAll((data) => {
 		StaticData.data.champion = data.data;
+		for(var champion_name in ChampionSpotlights.data)
+			StaticData.data.champion[StaticData.championNameToId(champion_name)].youtube_link = ChampionSpotlights.data[champion_name];
 	}, undefined, undefined, true, ["info", "stats", "image", "tags"], {
 		region: global.user_config.get("default_region")
 	});
@@ -119,4 +122,4 @@ var refreshCoreInformation = () => {
 
 setInterval(refreshCoreInformation, (times.VERY_LONG * 1000));
 cacheEngine.loadTable();
-refreshCoreInformation();
+var ChampionSpotlights = new Config("data/champion_spotlights.json", refreshCoreInformation);

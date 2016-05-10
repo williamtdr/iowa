@@ -4,5 +4,12 @@
  */
 
 module.exports = {
-	data: {}
+	data: {},
+	championNameToId: (name) => {
+		for(var id in module.exports.data.champion)
+			if(module.exports.data.champion[id].name === name)
+				return id;
+
+		return false;
+	}
 };

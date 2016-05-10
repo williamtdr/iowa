@@ -18,11 +18,7 @@ function formatChampionInfo(input) {
 	for(var key in input) {
 		output[key] = {};
 		output[key].info = input[key].info;
-		output[key].gold = input[key].gold;
-		output[key].damage = input[key].damage;
-		output[key].outcome = input[key].outcome;
-		output[key].kills = input[key].kills;
-		output[key].creepScore = input[key].creepScore;
+		output[key].youtube_link = input[key].youtube_link;
 	}
 	
 	return output;
