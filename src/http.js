@@ -63,6 +63,9 @@ app.engine("handlebars", exphbs({
 		},
 		noSpacesLowercase: (input) => {
 			return input.replace(" ", "").toLowerCase();
+		},
+		dateFormat: (input) => {
+			return new Date(parseInt(input)).toString();
 		}
 	}
 }));
