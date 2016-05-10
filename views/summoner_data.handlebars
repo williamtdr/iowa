@@ -60,7 +60,7 @@
 				{{numberFormatter this.creepScore.average}} <span class="champion-sidebar-suffix" style="color: #2ecc71">minion kills</span><br>
 				{{numberFormatter this.damage.averageDealt}} <span class="champion-sidebar-suffix" style="color: #3498db">damage dealt</span><br>
 				{{numberFormatter this.damage.averageTaken}} <span class="champion-sidebar-suffix" style="color: #e74c3c">damage taken</span><br>
-				{{numberFormatter this.turrets.average}} <span class="champion-sidebar-suffix" style="color: #1abc9c">turrets killed</span><br>
+				{{numberFormatter this.turrets.average}} <span class="champion-sidebar-suffix" style="color: #1abc9c">turrets destroyed</span><br>
 				<div class="champion-sidebar-header">
 					LINKS
 				</div>
@@ -93,7 +93,43 @@
 				<div class="embed-responsive embed-responsive-16by9"></div>
 			</div>
 			<div class="tab-info tab-padded"></div>
-			<div class="tab-your-stats tab-padded"></div>
+			<div class="tab-your-stats tab-padded">
+				<div class="champion-sidebar-header">
+					COMBAT
+				</div>
+				{{roundOne this.kills.kills}} <span class="champion-suffix" style="color: #3498db">kills</span> - {{roundOne this.kills.averageKills}} <span class="champion-suffix" style="color: #3498db">on average</span><br>
+				{{roundOne this.kills.assists}} <span class="champion-suffix" style="color: #9b59b6">assists</span> - {{roundOne this.kills.averageAssists}} <span class="champion-suffix" style="color: #9b59b6">on average</span><br>
+				{{roundOne this.kills.deaths}} <span class="champion-suffix" style="color: #e74c3c">deaths</span> -{{roundOne this.kills.averageDeaths}}  <span class="champion-suffix" style="color: #e74c3c">on average</span><br>
+				<div class="champion-sidebar-header">
+					WINS
+				</div>
+				{{this.outcome.won}} <span class="champion-suffix" style="color: #2ecc71">games won</span><br>
+				{{this.outcome.lost}} <span class="champion-suffix" style="color: #e74c3c">games lost</span><br>
+				<div class="champion-sidebar-header">
+					OTHER
+				</div>
+				{{numberFormatter this.gold.total}} <span class="champion-suffix" style="color: #f1c40f">gold</span> - {{numberFormatter this.gold.average}} <span class="champion-suffix" style="color: #f1c40f">on average</span><br>
+				{{numberFormatter this.creepScore.total}} <span class="champion-suffix" style="color: #2ecc71">minions killed</span> - {{numberFormatter this.creepScore.average}} <span class="champion-suffix" style="color: #2ecc71">on average</span><br>
+				{{numberFormatter this.damage.dealt}} <span class="champion-suffix" style="color: #3498db">damage dealt</span> - {{numberFormatter this.damage.averageDealt}} <span class="champion-suffix" style="color: #3498db">on average</span><br>
+				{{numberFormatter this.damage.taken}} <span class="champion-suffix" style="color: #e74c3c">damage taken</span> - {{numberFormatter this.damage.averageTaken}} <span class="champion-suffix" style="color: #e74c3c">on average</span><br>
+				{{numberFormatter this.turrets.total}} <span class="champion-suffix" style="color: #1abc9c">turrets destroyed</span> - {{numberFormatter this.turrets.average}} <span class="champion-suffix" style="color: #1abc9c">on average</span><br>
+				<div class="champion-sidebar-header">
+					ACHIEVEMENTS
+				</div>
+				<span style="color: #1abc9c">Double kills:</span> {{this.accomplishments.totalDoubleKills}}<br>
+				<span style="color: #1abc9c">Triple kills:</span> {{this.accomplishments.totalTripleKills}}<br>
+				<span style="color: #1abc9c">Quadra kills:</span> {{this.accomplishments.totalQuadraKills}}<br>
+				<span style="color: #1abc9c">Pentakills:</span> {{this.accomplishments.totalPentaKills}}<br>
+				<span style="color: #1abc9c">Unreal Kills:</span> {{this.accomplishments.totalUnrealKills}}<br>
+				<span style="color: #1abc9c">First blood taken:</span> {{this.accomplishments.totalFirstBlood}}<br>
+				<div class="champion-sidebar-header">
+					CHAMPION MASTERY
+				</div>
+				<span style="color: #1abc9c">Level:</span> {{this.mastery.championLevel}}<br>
+				<span style="color: #1abc9c">Chest:</span> {{#if this.mastery.chestGranted}}Awarded!{{else}}Not yet earned{{/if}}<br>
+				<span style="color: #1abc9c">Highest grade:</span> {{this.mastery.highestGrade}}<br>
+				<span style="color: #1abc9c">Last played:</span> {{dateFormat this.mastery.lastPlayTime}}<br>
+			</div>
 		</div>
 	</div>
 {{/each}}
