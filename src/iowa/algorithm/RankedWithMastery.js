@@ -2,7 +2,8 @@
  * Order champions by approximate player skill
  */
 
-var utils = require("../../utils");
+var utils = require("../../utils"),
+	StaticData = require("../StaticData").data;
 
 var addFactor = (result, data, factor) => {
 	for(var champion_key in data) {
@@ -19,6 +20,7 @@ function formatChampionInfo(input) {
 		output[key] = {};
 		output[key].info = input[key].info;
 		output[key].youtube_link = input[key].youtube_link;
+		output[key].spells = input[key].spells;
 	}
 	
 	return output;
@@ -156,6 +158,7 @@ module.exports = (ranked_stats, champion_mastery) => {
 	return {
 		champions: result_populated,
 		aggregateStats: aggregateStats,
-		championInfo: formatChampionInfo(ranked_stats)
+		championInfo: formatChampionInfo(ranked_stats),
+		baseURL: StaticData.realm.cdn + "/"+ StaticData.realm.v
 	};
 };

@@ -36,4 +36,11 @@ footer {
 	bottom: 0;
 	text-align: center;
 	display: none;
+	margin-bottom: 75px;
+}
+
+@media screen and (max-width: 768px) {
+	footer {
+		position: relative !important;
+	}
 }

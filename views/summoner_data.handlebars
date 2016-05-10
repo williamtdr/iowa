@@ -69,8 +69,14 @@
 			</ul>
 		</div>
 		<div class="champion-tabbed-content" data-id="{{this.id}}">
-			<div class="tab-content-spotlight">
+			<div class="tab-spotlight">
 				<div class="embed-responsive embed-responsive-16by9"></div>
+			</div>
+			<div class="tab-info tab-padded">
+				This is the info tab
+			</div>
+			<div class="tab-your-stats tab-padded">
+				Your stats tab
 			</div>
 		</div>
 	</div>
@@ -79,9 +85,25 @@
 
 <script>
 	var aggregateStats = {{{aggregateStats}}},
-		championInfo = {{{championInfo}}};
+		championInfo = {{{championInfo}}},
+		baseCacheUrl = "{{{baseURL}}}";
 
 	{{#if champions}}
 	$("#sidebar").show();
 	{{/if}}
+
+	$(".champion-tab").click(function(ev) {
+		if($(this).hasClass("champion-tab-selected"))
+			return false;
+
+		var old_tab = $(".champion-tab-selected").removeClass("champion-tab-selected").attr("class").split(' '),
+			new_tab = $(this).attr("class").split(' ');
+
+		old_tab.splice(old_tab.indexOf("champion-tab"), 1);
+		new_tab.splice(new_tab.indexOf("champion-tab"), 1);
+
+		$(this).parent().parent().find(".champion-tabbed-content").find("." + old_tab[0]).hide();
+		$(this).parent().parent().find(".champion-tabbed-content").find("." + new_tab[0]).show();
+		$(this).addClass("champion-tab-selected");
+	});
 </script>

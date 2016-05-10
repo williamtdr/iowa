@@ -115,7 +115,7 @@ var refreshCoreInformation = () => {
 		StaticData.data.champion = data.data;
 		for(var champion_name in ChampionSpotlights.data)
 			StaticData.data.champion[StaticData.championNameToId(champion_name)].youtube_link = ChampionSpotlights.data[champion_name];
-	}, undefined, undefined, true, ["info", "stats", "image", "tags"], {
+	}, undefined, undefined, true, ["info", "stats", "image", "tags", "spells"], {
 		region: global.user_config.get("default_region")
 	});
 };

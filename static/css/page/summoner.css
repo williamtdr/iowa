@@ -242,6 +242,51 @@ footer {
 	width: calc(100% - 200px);
 }
 
+.champion-tabbed-content > div {
+	display: none;
+	overflow-y: auto;
+	height: 385px;
+}
+
+.champion-tabbed-content > .tab-spotlight {
+	display: block;
+}
+
+.tab-padded {
+	padding: 10px;
+	color: white;
+}
+
+.spell-image {
+	width: 48px;
+	height: 48px;
+	margin-left: 10px;
+	margin-bottom: 5px;
+	display: inline-block;
+	float: left;
+}
+
+.spell-name {
+	font-size: 1.4em;
+	margin-left: 10px;
+	display: inline-block;
+	margin-bottom: 1px;
+	color: #f1c40f;
+}
+
+.spell-cost {
+	color: #bdc3c7;
+	margin-bottom: 10px;
+	margin-left: 69px;
+}
+
+.spell-description {
+	margin-top: 5px;
+	margin-bottom: 5px;
+	margin-left: 10px;
+	color: white;
+}
+
 /* Responsive Styles */
 @media screen and (max-width: 996px) {
 	.champion {

@@ -64,6 +64,7 @@ module.exports = class RankedChampionStats {
 		this.title = champion_info.title;
 		this.stats = champion_info.stats;
 		this.info = champion_info.info;
+		this.spells = champion_info.spells;
 		this.youtube_link = champion_info.youtube_link;
 		this.imageURL = StaticData.realm.cdn + "/"+ StaticData.realm.v + "/img/champion/" + champion_info.image.full;
 		this.splashURL = StaticData.realm.cdn + "/img/champion/splash/" + champion_info.key + "_0.jpg";

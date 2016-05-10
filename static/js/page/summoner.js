@@ -25,7 +25,6 @@ function closeChampionTile(el) {
 				"-webkit-filter": "",
 				"margin-bottom": "10px"
 			});
-			el.find(".champion-stats").hide();
 			el.find(".champion-footer").css({
 				height: ""
 			});
@@ -64,7 +63,6 @@ function openChampionTile(el) {
 		tabs = $(".champion-tabbed-content[data-id=\"" + id + "\"]"),
 		indicators = el.find(".champion-info");
 
-	tabs.find(".tab-content-spotlight div").html("<iframe width=\"560\" height=\"315\" src=\"" + championInfo[parseInt(id)].youtube_link.replace("watch?v=", "v/") + "\" frameborder=\"0\" allowfullscreen></iframe>");
 	indicators.show();
 	info_area.show().animate({
 		height: "430px"
@@ -84,6 +82,15 @@ function openChampionTile(el) {
 			"font-size": "2em",
 			"bottom": "30px"
 		});
+
+		var info_text = "";
+		for(var index in championInfo[parseInt(id)].spells) {
+			var spell = championInfo[parseInt(id)].spells[index];
+			info_text += "<div class=\"spell-image\" style=\"background-image: url('" + baseCacheUrl + "/img/sprite/" + spell.image.sprite + "'); background-position: -" + spell.image.x + "px -" + spell.image.y + "px\"></div><div class='spell-name'>" + spell.name + "</div><div class='spell-cost'>" + spell.resource.replace("{{ cost }}", spell.cost.join("/")) + "</div><div id='spell-description'>" + spell.sanitizedDescription.replace("\"", "&#34;") + "</div><br>\n";
+		}
+		console.log(info_text);
+		tabs.find(".tab-info").html(info_text);
+		tabs.find(".tab-spotlight div").html("<iframe width=\"560\" height=\"315\" src=\"" + championInfo[parseInt(id)].youtube_link.replace("watch?v=", "embed/") + "\" frameborder=\"0\" allowfullscreen></iframe>");
 
 		if(existing_spinners[id])
 			return;
