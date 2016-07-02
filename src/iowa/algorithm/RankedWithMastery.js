@@ -127,7 +127,7 @@ module.exports = (ranked_stats, champion_mastery) => {
 
 	for(var champion_id in ranked_stats) {
 		var champion = ranked_stats[champion_id],
-			masteryScore = champion_mastery[champion_id].championPoints;
+			masteryScore = champion_mastery[champion_id] ? champion_mastery[champion_id].championPoints : 0;
 
 		result[champion.id] = 0;
 		aggregateStats.outcome.won += champion.outcome.won;
