@@ -16,51 +16,51 @@ var request_queue = [],
 
 const regionData = {
 	"na": {
-		host: "na.api.pvp.net",
+		host: "na1.api.riotgames.com",
 		id: "NA1"
 	},
 	"eune": {
-		host: "eune.api.pvp.net",
+		host: "eun1.api.riotgames.com",
 		id: "EUN1"
 	},
 	"euw": {
-		host: "euw.api.pvp.net",
+		host: "euw1.api.riotgames.com",
 		id: "EUW1"
 	},
 	"oce": {
-		host: "oce.api.pvp.net",
+		host: "oc1.api.riotgames.com",
 		id: "OC1"
 	},
 	"br": {
-		host: "br.api.pvp.net",
+		host: "br1.api.riotgames.com",
 		id: "BR1"
 	},
 	"jp": {
-		host: "jp.api.pvp.net",
+		host: "jp1.api.riotgames.com",
 		id: "JP1"
 	},
 	"kr": {
-		host: "kr.api.pvp.net",
+		host: "kr.api.riotgames.com",
 		id: "KR"
 	},
 	"lan": {
-		host: "lan.api.pvp.net",
+		host: "la1.api.riotgames.com",
 		id: "LA1"
 	},
 	"las": {
-		host: "las.api.pvp.net",
+		host: "la2.api.riotgames.com",
 		id: "LA2"
 	},
 	"tr": {
-		host: "tr.api.pvp.net",
+		host: "tr1.api.riotgames.com",
 		id: "TR1"
 	},
 	"ru": {
-		host: "ru.api.pvp.net",
+		host: "ru.api.riotgames.com",
 		id: "RU"
 	},
 	"pbe": {
-		host: "pbe.api.pvp.net",
+		host: "pbe1.api.riotgames.com",
 		id: "PBE1"
 	}
 };
