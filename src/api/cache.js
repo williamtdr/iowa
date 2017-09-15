@@ -48,7 +48,7 @@ var engine = {
 	// Iterates through the table to find cached data for endpoints that
 	// accept custom parameters or multiple values for a single field.
 	complexLookup: (info) => {
-		for(var key in table) {
+		for(let key in table) {
 			var entry = table[key];
 			if(entry.identifier === info.identifier && JSON.stringify(entry.params) === JSON.stringify(info.params))
 				return key;
@@ -62,7 +62,7 @@ var engine = {
 	checkOutdatedEntries: (sync) => {
 		var entries_removed = 0;
 
-		for(var key in table)
+		for(let key in table)
 			if(table[key].expires <= Math.floor(Date.now() / 1000)) {
 				entries_removed++;
 				console.log("removing " + key + "...");

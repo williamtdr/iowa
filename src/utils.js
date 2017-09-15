@@ -11,7 +11,7 @@ module.exports = {
 		var text = "",
 			possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
-		for(var i = 0; i < ((length - 1) || 20); i++)
+		for(let i = 0; i < ((length - 1) || 20); i++)
 			text += possible.charAt(Math.floor(Math.random() * possible.length));
 
 		return text;
@@ -35,7 +35,7 @@ module.exports = {
 	},
 	logList: (prefix, data, value_key, name_key) => {
 		var text = "";
-		for(var el of data)
+		for(let el of data)
 			text += get(el, name_key) + " (" + get(el, value_key) + "), ";
 
 		console.log(prefix + ": " + text.slice(0, -2));

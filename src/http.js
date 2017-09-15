@@ -150,7 +150,7 @@ app.use((req, res, next) => {
 	} else if(req.path === "/js/background.js") {
 		var backgroundStore = [];
 
-		for(var champion_key in StaticData.champion) {
+		for(let champion_key in StaticData.champion) {
 			var champion = StaticData.champion[champion_key];
 			backgroundStore.push(StaticData.realm.cdn + "/img/champion/splash/" + champion.key + "_0.jpg");
 		}

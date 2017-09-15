@@ -8,7 +8,7 @@ var Client = require("node-rest-client").Client,
 	RateLimiter = require("limiter").RateLimiter;
 
 var limiters = [];
-for(var condition of global.user_config.get("rate_limiting"))
+for(let condition of global.user_config.get("rate_limiting"))
 	limiters.push(new RateLimiter(condition.requests, condition.reset * 1000));
 
 var request_queue = [],
@@ -155,7 +155,7 @@ module.exports.request = (callback, info) => {
 
 		check_limiter(request_counter, engine_callback);
 	}, check_limiter = (request_counter, engine_callback) => {
-		for(var limiter of limiters)
+		for(let limiter of limiters)
 			limiter.removeTokens(1, () => {
 				if(--request_queue[request_counter] === 0) {
 					retrieve((data) => {

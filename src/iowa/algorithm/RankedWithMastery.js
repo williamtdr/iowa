@@ -6,7 +6,7 @@ var utils = require("../../utils"),
 	StaticData = require("../StaticData").data;
 
 var addFactor = (result, data, factor) => {
-	for(var champion_key in data) {
+	for(let champion_key in data) {
 		var champion = data[champion_key];
 
 		result[champion.id] += ((data.length - champion_key) * factor);
@@ -16,7 +16,7 @@ var addFactor = (result, data, factor) => {
 function formatChampionInfo(input) {
 	var output = {};
 
-	for(var key in input) {
+	for(let key in input) {
 		output[key] = {};
 		output[key].info = input[key].info;
 		output[key].youtube_link = input[key].youtube_link;
@@ -96,7 +96,7 @@ function evaluateBasedOnTag(tag, tag_priority, championMasteryPoints, championRa
 function sortChampionMastery(championMasteryData) {
 	var result = {};
 
-	for(var champion of championMasteryData)
+	for(let champion of championMasteryData)
 		result[champion.championId] = champion;
 
 	return result;
@@ -125,7 +125,7 @@ module.exports = (ranked_stats, champion_mastery) => {
 		gold: 0
 	};
 
-	for(var champion_id in ranked_stats) {
+	for(let champion_id in ranked_stats) {
 		var champion = ranked_stats[champion_id],
 			masteryScore = champion_mastery[champion_id] ? champion_mastery[champion_id].championPoints : 0;
 
@@ -142,7 +142,7 @@ module.exports = (ranked_stats, champion_mastery) => {
 
 		ranked_stats[champion_id].mastery = champion_mastery[champion_id];
 
-		for(var tag_priority in champion.tags)
+		for(let tag_priority in champion.tags)
 			result[champion.id] += evaluateBasedOnTag(champion.tags[tag_priority], champion.tags.length === 1 ? -1 : tag_priority, masteryScore, champion);
 	}
 
@@ -152,7 +152,7 @@ module.exports = (ranked_stats, champion_mastery) => {
 
 	var result_populated = [];
 
-	for(var key in result) {
+	for(let key in result) {
 		var val = result[key];
 		result_populated.push(ranked_stats[val]);
 	}

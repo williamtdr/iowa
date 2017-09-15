@@ -83,7 +83,7 @@ module.exports = {
 				return callback(response);
 			}
 
-			for(var champion of data.champions) {
+			for(let champion of data.champions) {
 				if(champion === null || champion.id === 0)
 					continue;
 
@@ -113,7 +113,7 @@ var refreshCoreInformation = () => {
 	});
 	api.static_data.championAll((data) => {
 		StaticData.data.champion = data.data;
-		for(var champion_name in ChampionSpotlights.data)
+		for(let champion_name in ChampionSpotlights.data)
 			StaticData.data.champion[StaticData.championNameToId(champion_name)].youtube_link = ChampionSpotlights.data[champion_name];
 	}, undefined, undefined, true, ["info", "stats", "image", "tags", "spells"], {
 		region: global.user_config.get("default_region")

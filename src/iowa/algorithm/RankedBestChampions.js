@@ -13,7 +13,7 @@
 var utils = require("../../utils");
 
 var addFactor = (result, data, factor) => {
-	for(var champion_key in data) {
+	for(let champion_key in data) {
 		var champion = data[champion_key];
 
 		result[champion.id] += ((data.length - champion_key) * factor);
