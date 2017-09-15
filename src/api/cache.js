@@ -132,8 +132,8 @@ var engine = {
 				engine.fromFile(lookup, info, onMiss, callback);
 			else
 				onMiss((data) => {
-					engine.save(info, data);
 					callback(data);
+					engine.save(info, data);
 				});
 		}
 	},

@@ -20,7 +20,7 @@ function preflight(region, name, id) {
 			error: "Unknown Region."
 		};
 
-	if(name !== undefined && name.length > 16 || /[&\\\/\|:;'"]/.test(name))
+	if(name === undefined || /[&\\\/\|:;'"]/.test(name))
 		return {
 			error: "Invalid username."
 		};
