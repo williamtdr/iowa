@@ -29,7 +29,7 @@ var next = (result) => {
 		return process.exit(1);
 	}
 	
-	if(global.user_config.get("credentials.riot_api_key").length !== 36) {
+	if(global.user_config.get("credentials.riot_api_key").length === 0) {
 		console.log("This project requires a developer key for the Riot Games API");
 		console.log("to retrieve summoner stats and other data. Please get one from");
 		console.log("developer.riotgames.com and enter it in config/config.json.");
