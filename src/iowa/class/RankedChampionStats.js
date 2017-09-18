@@ -4,7 +4,7 @@
 
 "use strict";
 
-var StaticData = require("./../StaticData").data;
+const StaticData = require("./../StaticData").data;
 
 module.exports = class RankedChampionStats {
 	constructor(data) {
@@ -59,7 +59,7 @@ module.exports = class RankedChampionStats {
 			average: (data.stats.totalTurretsKilled / this.outcome.played).toFixed(2)
 		};
 
-		var champion_info = StaticData.champion[this.id.toString()];
+		const champion_info = StaticData.champion[this.id.toString()];
 		this.name = champion_info.name;
 		this.title = champion_info.title;
 		this.stats = champion_info.stats;

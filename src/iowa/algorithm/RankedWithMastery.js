@@ -2,19 +2,18 @@
  * Order champions by approximate player skill
  */
 
-var utils = require("../../utils"),
-	StaticData = require("../StaticData").data;
+const StaticData = require("../StaticData").data;
 
-var addFactor = (result, data, factor) => {
+function addFactor(result, data, factor) {
 	for(let champion_key in data) {
-		var champion = data[champion_key];
+		const champion = data[champion_key];
 
 		result[champion.id] += ((data.length - champion_key) * factor);
 	}
 };
 
 function formatChampionInfo(input) {
-	var output = {};
+	let output = {};
 
 	for(let key in input) {
 		output[key] = {};
@@ -27,7 +26,7 @@ function formatChampionInfo(input) {
 }
 
 function evaluateBasedOnTag(tag, tag_priority, championMasteryPoints, championRankedStats) {
-	var result = 0;
+	let result = 0;
 
 	switch(tag) {
 		case "Melee": // Shen is special for some reason...
@@ -94,7 +93,7 @@ function evaluateBasedOnTag(tag, tag_priority, championMasteryPoints, championRa
 
 // Create object for champion mastery data with key of champion ID
 function sortChampionMastery(championMasteryData) {
-	var result = {};
+	let result = {};
 
 	for(let champion of championMasteryData)
 		result[champion.championId] = champion;
@@ -103,11 +102,11 @@ function sortChampionMastery(championMasteryData) {
 }
 
 module.exports = (ranked_stats, champion_mastery) => {
-	var result = {};
+	let result = {};
 
 	champion_mastery = sortChampionMastery(champion_mastery);
 
-	var aggregateStats = {
+	const aggregateStats = {
 		outcome: {
 			won: 0,
 			lost: 0,
@@ -126,7 +125,7 @@ module.exports = (ranked_stats, champion_mastery) => {
 	};
 
 	for(let champion_id in ranked_stats) {
-		var champion = ranked_stats[champion_id],
+		let champion = ranked_stats[champion_id],
 			masteryScore = champion_mastery[champion_id] ? champion_mastery[champion_id].championPoints : 0;
 
 		result[champion.id] = 0;
@@ -150,10 +149,11 @@ module.exports = (ranked_stats, champion_mastery) => {
 		return result[b] - result[a]
 	});
 
-	var result_populated = [];
+	let result_populated = [];
 
 	for(let key in result) {
-		var val = result[key];
+		let val = result[key];
+
 		result_populated.push(ranked_stats[val]);
 	}
 

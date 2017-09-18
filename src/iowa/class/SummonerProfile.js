@@ -4,7 +4,7 @@
 
 "use strict";
 
-var StaticData = require("./../StaticData").data;
+const StaticData = require("./../StaticData").data;
 
 module.exports = class SummonerProfile {
 	constructor(data, region) {

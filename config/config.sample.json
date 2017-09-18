@@ -1,7 +1,9 @@
 {
-	"web_server": {
-		"ip": "0.0.0.0",
-		"port": 3000
+	"http": {
+		"bind": "0.0.0.0:3000"
+	},
+	"credentials": {
+		"riot_api_key": ""
 	},
 	"cache": {
 		"directory": ".cache",
@@ -14,9 +16,6 @@
 			"very_long": 604800
 		}
 	},
-	"credentials": {
-		"riot_api_key": ""
-	},
 	"rate_limiting": [
 		{
 			"requests": 10,
@@ -27,5 +26,6 @@
 			"reset": 600
 		}
 	],
-	"default_region": "na"
+	"default_region": "na",
+	"debug": true
 }

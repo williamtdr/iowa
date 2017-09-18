@@ -20,10 +20,10 @@
  * unless they only have one child, in which case they're a function. Enjoy! :)
  */
 
-var client = require("./client"),
-	cacheTimes = require("./cache").times,
-	request = client.request,
-	regions = client.regions;
+const client = require("./client"),
+	  cacheTimes = require("./cache").times,
+	  request = client.request,
+	  regions = client.regions;
 
 module.exports = {
 	/**
@@ -361,7 +361,7 @@ module.exports = {
 	static_data: {
 		// Retrieves champion list.
 		championAll: (callback, locale, version, dataById, champData, options) => {
-			var params = {
+			const params = {
 				locale: locale,
 				version: version,
 				dataById: dataById,
@@ -386,7 +386,7 @@ module.exports = {
 		},
 		// Retrieves a champion by its id.
 		championOne: (callback, id, locale, version, champData, options) => {
-			var params = {
+			const params = {
 				locale: locale,
 				version: version,
 				champData: Array.isArray(champData) ? champData.join(",") : undefined
@@ -411,7 +411,7 @@ module.exports = {
 		},
 		// Retrieves item list.
 		itemAll: (callback, locale, version, itemListData, options) => {
-			var params = {
+			const params = {
 				locale: locale,
 				version: version,
 				itemListData: Array.isArray(itemListData) ? itemListData.join(",") : undefined
@@ -435,7 +435,7 @@ module.exports = {
 		},
 		// Retrieves item by its unique id
 		itemOne: (callback, id, locale, version, itemData, options) => {
-			var params = {
+			const params = {
 				locale: locale,
 				version: version,
 				itemData: Array.isArray(itemData) ? itemData.join(",") : undefined
@@ -460,7 +460,7 @@ module.exports = {
 		},
 		// Retrieve language strings data
 		languageStrings: (callback, locale, version, options) => {
-			var params = {
+			const params = {
 				locale: locale,
 				version: version
 			};
@@ -499,7 +499,7 @@ module.exports = {
 		},
 		// Retrieve map data.
 		map: (callback, locale, version, options) => {
-			var params = {
+			const params = {
 				locale: locale,
 				version: version
 			};
@@ -522,7 +522,7 @@ module.exports = {
 		},
 		// Retrieves mastery list.
 		mastery: (callback, locale, version, masteryListData, options) => {
-			var params = {
+			const params = {
 				locale: locale,
 				version: version,
 				masteryListData: Array.isArray(masteryListData) ? masteryListData.join(",") : undefined
@@ -545,7 +545,7 @@ module.exports = {
 			});
 		},
 		masteryById: (callback, id, locale, version, masteryData, options) => {
-			var params = {
+			const params = {
 				locale: locale,
 				version: version,
 				masteryData: masteryData
@@ -586,7 +586,7 @@ module.exports = {
 		},
 		// Retrieves rune list.
 		rune: (callback, locale, version, runeListData, options) => {
-			var params = {
+			const params = {
 				runeListData: Array.isArray(runeListData) ? runeListData.join(",") : undefined,
 				locale: locale,
 				version: version
@@ -610,7 +610,7 @@ module.exports = {
 		},
 		// Retrieves rune by its unique id.
 		runeById: (callback, id, locale, version, runeData, options) => {
-			var params = {
+			const params = {
 				runeListData: Array.isArray(runeData) ? runeData.join(",") : undefined,
 				locale: locale,
 				version: version
@@ -635,7 +635,7 @@ module.exports = {
 		},
 		// Retrieves summoner spell list.
 		summonerSpell: (callback, locale, version, dataById, spellData, options) => {
-			var params = {
+			const params = {
 				spellData: Array.isArray(spellData) ? spellData.join(",") : undefined,
 				dataById: dataById,
 				locale: locale,
@@ -660,7 +660,7 @@ module.exports = {
 		},
 		// Retrieves summoner spell by its unique id.
 		summonerSpellById: (callback, id, locale, version, spellData, options) => {
-			var params = {
+			const params = {
 				spellData: Array.isArray(spellData) ? spellData.join(",") : undefined,
 				locale: locale,
 				version: version
@@ -737,7 +737,7 @@ module.exports = {
 	 * Docs URL: https://developer.riotgames.com/api/methods#!/1064
 	 */
 	match: (callback, matchId, includeTimeline, options) => {
-		var params = {
+		const params = {
 			includeTimeline: includeTimeline
 		};
 
@@ -765,7 +765,7 @@ module.exports = {
 	 * Docs URL: https://developer.riotgames.com/api/methods#!/1069
 	 */
 	matchList: (callback, summonerId, championIds, rankedQueues, seasons, beginTime, endTime, beginIndex, endIndex, options) => {
-		var params = {
+		const params = {
 			championIds: Array.isArray(championIds) ? championIds.join(",") : undefined,
 			rankedQueues: rankedQueues,
 			seasons: seasons,
@@ -800,7 +800,7 @@ module.exports = {
 	stats: {
 		// Get ranked stats by summoner ID.
 		ranked: (callback, summonerId, season, version, options) => {
-			var params = {
+			const params = {
 				season: season,
 				version: version
 			};
@@ -824,7 +824,7 @@ module.exports = {
 		},
 		// Get player stats summaries by summoner ID.
 		summary: (callback, summonerId, season, options) => {
-			var params = {
+			const params = {
 				season: season
 			};
 

@@ -15,33 +15,33 @@
  * This file validates the configuration then launches the main app.
  */
 
-var Config = require("./src/config");
-global.user_config = false; // config/config.json
+const log = require("./src/util/log")("System", "cyan"),
+	  HTTP = require("./src/interface/http"),
+	  colors = require("colors"),
+	  engine = require("./src/api/cache").engine,
+	  Config = require("./src/util/config");
 
-console.log("IoWA - Institute of War Aptitude");
-console.log("---");
+const iowa = {
+	async init() {
+		log.info("IoWA".yellow + " - Institute of War Aptitude".white);
+		log.info("Reading configuration...");
+		this.config = new Config("config/config.json");
 
-var next = (result) => {
-	if(!result) {
-		console.log("There was an error reading the IoWA configuration file (config/config.json).");
-		console.log("Please make sure the file exists, has the proper permissions and valid JSON.");
-		console.log("If you'd like to start over, copy config.sample.json.");
-		return process.exit(1);
+		if(this.config.get("credentials.riot_api_key").length === 0) {
+			log.warn("This project requires a developer key for the Riot Games API " +
+				"to retrieve summoner stats and other data. Please get one from " +
+				"developer.riotgames.com and enter it in config/config.json.");
+
+			return process.exit(1);
+		}
+
+		log.info("Starting web server...");
+		this.http = new HTTP();
+		await this.http.init(this.config.get("http.bind"));
+
+		log.info("Ready!");
 	}
-	
-	if(global.user_config.get("credentials.riot_api_key").length === 0) {
-		console.log("This project requires a developer key for the Riot Games API");
-		console.log("to retrieve summoner stats and other data. Please get one from");
-		console.log("developer.riotgames.com and enter it in config/config.json.");
-		return process.exit(1);
-	}
-
-	// Config looks good, launch app
-	var http = require("./src/http"),
-		engine = require("./src/api/cache").engine;
-
-	console.log("Ready :)");
 };
 
-console.log("Reading configuration...");
-global.user_config = new Config("config/config.json", next);
+module.exports = iowa;
+iowa.init();

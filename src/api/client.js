@@ -3,15 +3,16 @@
  * Checks rate limits as defined in the configuration. Tracks regions and their information.
  */
 
-var Client = require("node-rest-client").Client,
-	cache = require("./cache").engine,
-	RateLimiter = require("limiter").RateLimiter;
+const Client = require("node-rest-client").Client,
+	  cache = require("./cache").engine,
+	  log = require("../util/log")("RiotAPI", "magenta"),
+	  RateLimiter = require("limiter").RateLimiter;
 
-var limiters = [];
+let limiters = [];
 for(let condition of global.user_config.get("rate_limiting"))
 	limiters.push(new RateLimiter(condition.requests, condition.reset * 1000));
 
-var request_queue = [],
+let request_queue = [],
 	request_counter = -1;
 
 const regionData = {
@@ -67,7 +68,7 @@ const regionData = {
 
 module.exports.regions = regionData;
 
-var client = new Client({
+const client = new Client({
 	requestConfig: {
 		timeout: 3000,
 		noDelay: true
@@ -78,8 +79,8 @@ var client = new Client({
 });
 
 module.exports.request = (callback, info) => {
-	var retrieve = (callback) => {
-		var args = {
+	function retrieve(callback) {
+		let args = {
 			path: info.pathParameters || {},
 			parameters: info.queryParameters || {}
 		}, key;
@@ -94,10 +95,10 @@ module.exports.request = (callback, info) => {
 
 		args.parameters.api_key = global.user_config.get("credentials.riot_api_key");
 
-		var req = client[info.method || "get"](info.fullPath || "https://" + regionData[info.region].host + info.path, args, (data, response) => {
-			console.log("API Request: " + info.path);
+		let req = client[info.method || "get"](info.fullPath || "https://" + regionData[info.region].host + info.path, args, (data, response) => {
+			log.info("API Request: " + info.path);
 			if(response.statusCode !== 200) {
-				var callbackReply = {
+				const callbackReply = {
 					type: "error",
 					code: response.statusCode
 				};
@@ -108,7 +109,7 @@ module.exports.request = (callback, info) => {
 					break;
 					case 403:
 						callbackReply.text = "Authorization failure.";
-						console.warn("Warning: Received an authentication error from Riot's API servers. Make sure your API key is correct.");
+						log.warn("Warning: Received an authentication error from Riot's API servers. Make sure your API key is correct.");
 					break;
 					case 404:
 						callbackReply.text = "Resource not found.";
@@ -149,12 +150,7 @@ module.exports.request = (callback, info) => {
 		});
 	};
 
-	var add_to_limiter = (engine_callback) => {
-		request_counter++;
-		request_queue[request_counter] = limiters.length;
-
-		check_limiter(request_counter, engine_callback);
-	}, check_limiter = (request_counter, engine_callback) => {
+	function check_limiter(request_counter, engine_callback) {
 		for(let limiter of limiters)
 			limiter.removeTokens(1, () => {
 				if(--request_queue[request_counter] === 0) {
@@ -164,6 +160,13 @@ module.exports.request = (callback, info) => {
 					delete request_queue[request_counter];
 				}
 			});
+	}
+
+	let add_to_limiter = (engine_callback) => {
+		request_counter++;
+		request_queue[request_counter] = limiters.length;
+
+		check_limiter(request_counter, engine_callback);
 	};
 
 	if(info.cache && info.cache.enabled)

@@ -10,29 +10,28 @@
  *  - Average minions killed: 5%
  */
 
-var utils = require("../../utils");
+const util = require("../../util/util");
 
-var addFactor = (result, data, factor) => {
+function addFactor(result, data, factor) {
 	for(let champion_key in data) {
-		var champion = data[champion_key];
+		let champion = data[champion_key];
 
 		result[champion.id] += ((data.length - champion_key) * factor);
 	}
-};
+}
 
 module.exports = (input) => {
-	var result = {},
-		champion;
+	let result = {};
 
-	for(champion of input)
+	for(let champion of input)
 		result[champion.id] = 0;
 
-	addFactor(result, utils.sort(input, "kills.ratio"), 0.4);
-	addFactor(result, utils.sort(input, "outcome.ratio"), 0.3);
-	addFactor(result, utils.sort(input, "damage.ratio"), 0.1);
-	addFactor(result, utils.sort(input, "outcome.played"), 0.1);
-	addFactor(result, utils.sort(input, "creepScore.average"), 0.05);
-	addFactor(result, utils.sort(input, "gold.average"), 0.05);
+	addFactor(result, util.sort(input, "kills.ratio"), 0.4);
+	addFactor(result, util.sort(input, "outcome.ratio"), 0.3);
+	addFactor(result, util.sort(input, "damage.ratio"), 0.1);
+	addFactor(result, util.sort(input, "outcome.played"), 0.1);
+	addFactor(result, util.sort(input, "creepScore.average"), 0.05);
+	addFactor(result, util.sort(input, "gold.average"), 0.05);
 
 	result = Object.keys(result).sort((a, b) => {
 		return result[b] - result[a]

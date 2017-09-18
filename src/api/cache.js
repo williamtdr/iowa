@@ -9,47 +9,53 @@
  * This code may hurt you. Do not stare at it directly.
  */
 
-var fs = require("fs-extra"),
-	utils = require("../utils");
+const fs = require("fs-extra"),
+	  app = require("../../app"),
+	  log = require("../util/log")("Cache", "red"),
+	  util = require("../util/util");
 
-var memory_cache = {},
+let memory_cache = {},
 	table = {}; // cache/info.json
 
 // Used by api.js and others to configure cache length
 module.exports.times = {
-	VERY_SHORT: global.user_config.get("cache.times.very_short"),
-	SHORT: global.user_config.get("cache.times.short"),
-	MEDIUM: global.user_config.get("cache.times.medium"),
-	LONG: global.user_config.get("cache.times.long"),
-	VERY_LONG: global.user_config.get("cache.times.very_long")
+	VERY_SHORT: app.config.get("cache.times.very_short"),
+	SHORT: app.config.get("cache.times.short"),
+	MEDIUM: app.config.get("cache.times.medium"),
+	LONG: app.config.get("cache.times.long"),
+	VERY_LONG: app.config.get("cache.times.very_long")
 };
 
-var engine = {
-	loadTable: () => {
-		console.log("Loading cache information table...");
+const engine = {
+	loadTable() {
+		log.info("Loading cache information table...");
+
 		try {
-			table = fs.readJSONSync(global.user_config.get("cache.directory") + "/info.json");
-			console.log("Running initial cache cleanup...");
+			table = fs.readJSONSync(app.config.get("cache.directory") + "/info.json");
+			log.info("Running initial cache cleanup...");
 			engine.checkOutdatedEntries(true);
 		} catch(e) {
-			console.log("Cache not found or corrupt, initializing...");
+			log.warn("Cache not found or corrupt, initializing...");
+
 			try {
-				fs.emptyDirSync(global.user_config.get("cache.directory"));
+				fs.emptyDirSync(app.config.get("cache.directory"));
 			} catch(e) {
-				fs.mkdirsSync(global.user_config.get("cache.directory"));
+				fs.mkdirsSync(app.config.get("cache.directory"));
 			}
+
 			engine.saveTable();
 		}
 
 	},
-	saveTable: () => {
-		fs.outputJSON(global.user_config.get("cache.directory") + "/info.json", table);
+	saveTable() {
+		fs.outputJSON(app.config.get("cache.directory") + "/info.json", table);
 	},
 	// Iterates through the table to find cached data for endpoints that
 	// accept custom parameters or multiple values for a single field.
-	complexLookup: (info) => {
+	complexLookup(info) {
 		for(let key in table) {
-			var entry = table[key];
+			let entry = table[key];
+
 			if(entry.identifier === info.identifier && JSON.stringify(entry.params) === JSON.stringify(info.params))
 				return key;
 		}
@@ -59,13 +65,13 @@ var engine = {
 	// Periodically called to remove information that is no longer current
 	// from the JSON files and the table. Cache expiration can be configured
 	// in config.json/cache/times.
-	checkOutdatedEntries: (sync) => {
-		var entries_removed = 0;
+	checkOutdatedEntries(sync) {
+		let entries_removed = 0;
 
 		for(let key in table)
-			if(table[key].expires <= Math.floor(Date.now() / 1000)) {
+			if(table[key].expires <= util.getUnixTime()) {
 				entries_removed++;
-				console.log("removing " + key + "...");
+				log.info(`Removing ${key}...`);
 
 				if(sync)
 					fs.removeSync(key + ".json");
@@ -78,13 +84,13 @@ var engine = {
 			}
 
 		if(entries_removed > 0)
-			console.log("Cache cleaned up, removed " + entries_removed + " entries.");
+			log.info("Cache cleaned up, removed " + entries_removed + " entries.");
 	},
-	fromFile: (path, info, onMiss, callback) => {
-		fs.readJSON(global.user_config.get("cache.directory") + "/" + path + ".json", "utf8", (err, data) => {
+	fromFile(path, info, onMiss, callback) {
+		fs.readJSON(app.config.get("cache.directory") + "/" + path + ".json", "utf8", (err, data) => {
 			if(err) {
 				// Object exists in the table, but not on disk
-				console.warn(path + ".json exists in the table, but not on the disk!");
+				log.warn(path + ".json exists in the table, but not on the disk!");
 				onMiss((data) => {
 					engine.save(info, data);
 					callback(data);
@@ -96,15 +102,15 @@ var engine = {
 		});
 	},
 	saveFile: (id, data) => {
-		fs.outputJSON(global.user_config.get("cache.directory") + "/" + id + ".json", data, (err) => {
+		fs.outputJSON(app.config.get("cache.directory") + "/" + id + ".json", data, (err) => {
 			if(err)
 				console.warn("Encountered a problem when trying to save the cache for an API request: " + err);
 		});
 	},
 	// Called by api.js to get data. Returns cached data if available,
 	// or forwards the request then stores the result.
-	hitOr: (callback, info, onMiss) => {
-		var base = (info.region || "global"),
+	hitOr(callback, info, onMiss) {
+		let base = (info.region || "global"),
 			key = base + "/" + info.identifier;
 
 		if(info.dynamic_id)
@@ -126,7 +132,7 @@ var engine = {
 			}
 		else {
 			// iterate over cache to find ID
-			var lookup = engine.complexLookup(info);
+			let lookup = engine.complexLookup(info);
 
 			if(lookup)
 				engine.fromFile(lookup, info, onMiss, callback);
@@ -138,18 +144,18 @@ var engine = {
 		}
 	},
 	// Saves an API response to disk and the table
-	save: (info, data) => {
-		var id,
+	save(info, data) {
+		let id,
 			firstPass = true;
 
-		if(data.type === "error" && !global.user_config.get("cache.save_failures"))
+		if(data.type === "error" && !app.config.get("cache.save_failures"))
 			return false;
 
 		id = (info.region || "global") + "/" + info.identifier; // Case 1: Simple identifier, no dynamic or params
 
 		if(info.params)
 			while(table[id] || firstPass) { // avoid collisions with existing files
-				id = (info.region || "global") + "/" + info.identifier + "-" + utils.randomString(8); // Case 2: Custom parameters
+				id = (info.region || "global") + "/" + info.identifier + "-" + util.randomString(8); // Case 2: Custom parameters
 				firstPass = false;
 			}
 
@@ -162,7 +168,7 @@ var engine = {
 				id = (info.region || "global") + "/" + info.identifier;
 			} else
 				while(table[id] || firstPass) { // Case 3: Dynamic, optional params
-					id = (info.region || "global") + "/multi/" + info.identifier.replace("{dynamic_id}", utils.randomString(8));
+					id = (info.region || "global") + "/multi/" + info.identifier.replace("{dynamic_id}", util.randomString(8));
 					firstPass = false;
 				}
 
