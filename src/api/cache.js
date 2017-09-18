@@ -21,11 +21,11 @@ let memory_cache = {},
 
 // Used by api.js and others to configure cache length
 module.exports.times = {
-	VERY_SHORT: 0,
-	SHORT: 0,
-	MEDIUM: 0,
-	LONG: 0,
-	VERY_LONG: 0
+	VERY_SHORT: 60,
+	SHORT: 300,
+	MEDIUM: 1800,
+	LONG: 86400,
+	VERY_LONG: 604800
 };
 
 const engine = {

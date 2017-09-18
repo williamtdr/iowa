@@ -6,6 +6,8 @@
 const Client = require("node-rest-client").Client,
 	  cache = require("./cache").engine,
 	  colors = require("colors"),
+	  moment = require("moment"),
+	  util = require("../util/util"),
 	  log = require("../util/log")("RiotAPI", "magenta"),
 	  RateLimiter = require("limiter").RateLimiter;
 
@@ -119,7 +121,10 @@ module.exports.request = (callback, info) => {
 						callbackReply.text = "Resource not found.";
 					break;
 					case 429:
-						return setTimeout(() => retrieve(callback), (response.headers["Retry-After"] * 1000));
+						const retry = response.headers["retry-after"] * 1000;
+
+						log.warn(`Rate limited for resource, retrying in ${moment(new Date(Date.now() + retry)).fromNow(false)}`);
+						return setTimeout(() => retrieve(callback), retry);
 					break;
 					case 500:
 						callbackReply.text = "The API encountered an internal server error.";
@@ -158,9 +163,7 @@ module.exports.request = (callback, info) => {
 		for(let limiter of limiters)
 			limiter.removeTokens(1, () => {
 				if(--request_queue[request_counter] === 0) {
-					retrieve((data) => {
-						engine_callback(data);
-					});
+					retrieve(engine_callback);
 					delete request_queue[request_counter];
 				}
 			});
@@ -176,9 +179,7 @@ module.exports.request = (callback, info) => {
 	if(info.cache && info.cache.enabled)
 		cache.hitOr(callback, info.cache, add_to_limiter);
 	else
-		retrieve((data) => {
-			callback(data);
-		});
+		retrieve(callback);
 };
 
 module.exports.init = appConfig => {

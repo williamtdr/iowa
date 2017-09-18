@@ -69,8 +69,8 @@ function register(app) {
 	});
 
 	app.get("/data/:region/:id", (req, res) => {
-		const region = req.param("region"),
-			  id = req.param("id");
+		const region = req.params.region,
+			  id = req.params.id;
 
 		iowa.renderDataPage((data) => {
 			res.locals = data;

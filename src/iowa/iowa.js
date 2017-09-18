@@ -7,6 +7,7 @@ const api = require("./../api/api"),
 	  regions = require("./../api/client").regions,
 	  cache = require("./../api/cache"),
 	  cacheEngine = cache.engine,
+	  urlencode = require('urlencode'),
 	  StaticData = require("./StaticData"),
 	  Config = require("../util/config"),
 	  log = require("../util/log")("IoWA", "green"),
@@ -48,8 +49,7 @@ function refreshCoreInformation() {
 
 module.exports = {
 	renderSummonerPage(callback, region, name) {
-		let response = {},
-			check = preflight(region, name);
+		let check = preflight(region, name);
 
 		if(check)
 			return callback(check);
@@ -58,11 +58,8 @@ module.exports = {
 			if(data.type === "error")
 				return callback(data);
 
-			let summoner = data[Object.keys(data)[0]];
-			response = new SummonerProfile(summoner, region);
-
-			callback(response);
-		}, [name], { region: region });
+			callback(new SummonerProfile(data, region));
+		}, [urlencode(name)], { region: region });
 	},
 	renderDataPage: (callback, region, id) => {
 		let response = {},
