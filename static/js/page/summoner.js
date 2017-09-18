@@ -134,16 +134,18 @@ function onChampionTileClick(ev) {
 function loadSummonerInfo(region, id) {
 	$.get("/data/" + region + "/" + id, function(data) {
 		$("#sub-content").html(data);
-		$(".champion").unbind().click(onChampionTileClick);
-		$("#ranked-won").html(aggregateStats.outcome.won);
-		$("#ranked-lost").html(aggregateStats.outcome.lost);
-		$("#ranked-total").html(aggregateStats.outcome.played);
-		$("#ranked-kills").html(aggregateStats.kills.kills);
-		$("#ranked-assists").html(aggregateStats.kills.assists);
-		$("#ranked-deaths").html(aggregateStats.kills.deaths);
-		$("#ranked-damage-dealt").html(nFormatter(aggregateStats.damage.dealt));
-		$("#ranked-damage-taken").html(nFormatter(aggregateStats.damage.taken));
-		$("#ranked-gold").html(nFormatter(aggregateStats.gold));
+		if(aggregateStats) {
+			$(".champion").unbind().click(onChampionTileClick);
+			$("#ranked-won").html(aggregateStats.outcome.won);
+			$("#ranked-lost").html(aggregateStats.outcome.lost);
+			$("#ranked-total").html(aggregateStats.outcome.played);
+			$("#ranked-kills").html(aggregateStats.kills.kills);
+			$("#ranked-assists").html(aggregateStats.kills.assists);
+			$("#ranked-deaths").html(aggregateStats.kills.deaths);
+			$("#ranked-damage-dealt").html(nFormatter(aggregateStats.damage.dealt));
+			$("#ranked-damage-taken").html(nFormatter(aggregateStats.damage.taken));
+			$("#ranked-gold").html(nFormatter(aggregateStats.gold));
+		}
 	});
 }
 

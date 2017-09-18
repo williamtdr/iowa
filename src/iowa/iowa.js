@@ -81,20 +81,24 @@ module.exports = {
 				callback(response);
 		};
 
-		api.stats.ranked((data) => {
-			if((data.type === "error" && data.code === 404) || !data.champions) {
+		api.matchlist.ranked((data) => {
+			console.log(data);
+
+			if(data.type === "error" && data.code === 404) {
 				response.error = { text: "No ranked matches found for this player." };
 
 				responded = true;
 				return callback(response);
 			}
 
-			for(let champion of data.champions) {
-				if(champion === null || champion.id === 0)
+			/*
+			for(let match of data) {
+				if(match === null || match.champion === 0)
 					continue;
 
-				ranked_stats[champion.id] = new RankedChampionStats(champion);
+				ranked_stats[match.champion] = new RankedChampionStats(match.champion);
 			}
+			*/
 
 			checkSufficentData();
 		}, id, undefined, undefined, { region: region });

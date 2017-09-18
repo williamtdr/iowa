@@ -63,7 +63,7 @@ function register(app) {
 			res.locals.extra_styles = [
 				"/css/page/summoner.css"
 			];
-			res.locals.inline_script = `loadSummonerInfo("${region}", ${data.summoner_id});`;
+			res.locals.inline_script = `loadSummonerInfo("${region}", ${data.accountId});`;
 			res.render("summoner");
 		}, region, summonerName);
 	});

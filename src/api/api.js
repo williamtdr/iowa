@@ -51,7 +51,7 @@ module.exports = {
 				path: "/lol/v3/champion/${id}",
 				pathParameters: {
 					region: options.region,
-					id: id
+					id
 				}
 			});
 		},
@@ -74,9 +74,7 @@ module.exports = {
 				pathParameters: {
 					region: options.region
 				},
-				queryParameters: {
-					freeToPlay: freeToPlay
-				}
+				queryParameters: { freeToPlay }
 			});
 		}
 	},
@@ -95,30 +93,30 @@ module.exports = {
 				cache: {
 					enabled: options.cache !== undefined ? options.cache : true,
 					region: options.region,
-					identifier: "summoner/" + summonerId + "/championMastery/byChampion/" + championId,
+					identifier: "/lol/champion-mastery/v3/champion-masteries/by-summoner/${summonerId}/by-champion/${championId}",
 					expires: cacheTimes.MEDIUM
 				},
 				pathParameters: {
 					platformId: regions[options.region].id,
-					playerId: summonerId,
-					championId: championId
+					summonerId,
+					championId
 				}
 			});
 		},
 		// Get all champion mastery entries sorted by number of champion points descending.
-		getAll(callback, summonerId, options) {
+		getAll(callback, accountId, options) {
 			request(callback, {
 				region: options.region,
 				cache: {
 					enabled: options.cache !== undefined ? options.cache : true,
 					region: options.region,
-					identifier: "summoner/" + summonerId + "/championMastery/all",
+					identifier: "summoner/" + accountId + "/championMastery/all",
 					expires: cacheTimes.MEDIUM
 				},
-				path: "/championmastery/location/${platformId}/player/${playerId}/champions",
+				path: "/lol/champion-mastery/v3/champion-masteries/by-summoner/${accountId}",
 				pathParameters: {
 					platformId: regions[options.region].id,
-					playerId: summonerId
+					accountId
 				}
 			});
 		},
@@ -132,34 +130,30 @@ module.exports = {
 					identifier: "summoner/" + summonerId + "/championMastery/score",
 					expires: cacheTimes.MEDIUM
 				},
-				path: "/championmastery/location/${platformId}/player/${playerId}/score",
+				path: "/champion-mastery/v3/location/${platformId}/player/${accountId}/score",
 				pathParameters: {
 					platformId: regions[options.region].id,
-					playerId: summonerId
+					accountId: summonerId
 				}
 			});
 		},
 		// Get specified number of top champion mastery entries sorted by number of champion points descending.
-		topChampions(callback, summonerId, count, options) {
+		topChampions(callback, accountId, count, options) {
 			request(callback, {
 				region: options.region,
 				cache: {
 					enabled: options.cache !== undefined ? options.cache : true,
 					region: options.region,
-					identifier: "summoner/" + summonerId + "/championMastery/top",
+					identifier: "summoner/" + accountId + "/championMastery/top",
 					expires: cacheTimes.MEDIUM,
-					params: {
-						count: count
-					}
+					params: { count }
 				},
-				path: "/championmastery/location/${platformId}/player/${playerId}/topchampions",
+				path: "/lol/champion-mastery/v3/scores/by-summoner/${accountId}",
 				pathParameters: {
 					platformId: regions[options.region].id,
-					playerId: summonerId
+					accountId
 				},
-				queryParameters: {
-					count: count
-				}
+				queryParameters: { count }
 			});
 		}
 	},
@@ -176,7 +170,7 @@ module.exports = {
 			path: "/observer-mode/rest/consumer/getSpectatorGameInfo/${platformId}/${summonerId}",
 			pathParameters: {
 				platformId: regions[options.region].id,
-				summonerId: summonerId
+				summonerId
 			}
 		});
 	},
@@ -216,7 +210,7 @@ module.exports = {
 			path: "/lol/v1.3/game/by-summoner/${summonerId}/recent",
 			pathParameters: {
 				region: options.region,
-				summonerId: summonerId
+				summonerId
 			}
 		});
 	},
@@ -244,7 +238,7 @@ module.exports = {
 				path: "/lol/v2.5/league/by-summoner/${summonerIds}",
 				pathParameters: {
 					region: options.region,
-					summonerIds: summonerIds
+					summonerIds
 				}
 			});
 		},
@@ -265,7 +259,7 @@ module.exports = {
 				path: "/lol/v2.5/league/by-summoner/${summonerIds}/entry",
 				pathParameters: {
 					region: options.region,
-					summonerIds: summonerIds
+					summonerIds
 				}
 			});
 		},
@@ -286,7 +280,7 @@ module.exports = {
 				path: "/lol/v2.5/league/by-team/${teamIds}",
 				pathParameters: {
 					region: options.region,
-					teamIds: teamIds
+					teamIds
 				}
 			});
 		},
@@ -307,7 +301,7 @@ module.exports = {
 				path: "/lol/v2.5/league/by-team/${teamIds}/entry",
 				pathParameters: {
 					region: options.region,
-					teamIds: teamIds
+					teamIds
 				}
 			});
 		},
@@ -320,17 +314,13 @@ module.exports = {
 					region: options.region,
 					identifier: "league/challenger",
 					expires: cacheTimes.MEDIUM,
-					params: {
-						type: type
-					}
+					params: { type }
 				},
 				path: "/lol/v2.5/league/challenger",
 				pathParameters: {
 					region: options.region
 				},
-				queryParameters: {
-					type: type
-				}
+				queryParameters: { type }
 			});
 		},
 		// Get master tier leagues.
@@ -342,17 +332,13 @@ module.exports = {
 					region: options.region,
 					identifier: "league/master",
 					expires: cacheTimes.MEDIUM,
-					params: {
-						type: type
-					}
+					params: { type }
 				},
 				path: "/lol/v2.5/league/master",
 				pathParameters: {
 					region: options.region
 				},
-				queryParameters: {
-					type: type
-				}
+				queryParameters: { type }
 			});
 		}
 	},
@@ -380,7 +366,7 @@ module.exports = {
 					region: options.region,
 					identifier: "static/champions",
 					expires: cacheTimes.VERY_LONG,
-					params: params
+					params
 				},
 				path: "/lol/static-data/v3/champions",
 				pathParameters: {
@@ -404,12 +390,12 @@ module.exports = {
 					region: options.region,
 					identifier: "static/champions/" + id,
 					expires: cacheTimes.LONG,
-					params: params
+					params
 				},
 				path: "/lol/static-data/v3/champion/${id}",
 				pathParameters: {
 					region: options.region,
-					id: id
+					id
 				},
 				queryParameters: params
 			});
@@ -417,9 +403,8 @@ module.exports = {
 		// Retrieves item list.
 		itemAll(callback, locale, version, itemListData, options) {
 			const params = {
-				locale: locale,
-				version: version,
-				itemListData: Array.isArray(itemListData) ? itemListData.join(",") : undefined
+				itemListData: Array.isArray(itemListData) ? itemListData.join(",") : undefined,
+				locale, version
 			};
 
 			request(callback, {
@@ -429,7 +414,7 @@ module.exports = {
 					region: options.region,
 					identifier: "static/items",
 					expires: cacheTimes.VERY_LONG,
-					params: params
+					params
 				},
 				path: "/lol/static-data/v3/item",
 				pathParameters: {
@@ -441,9 +426,8 @@ module.exports = {
 		// Retrieves item by its unique id
 		itemOne(callback, id, locale, version, itemData, options) {
 			const params = {
-				locale: locale,
-				version: version,
-				itemData: Array.isArray(itemData) ? itemData.join(",") : undefined
+				itemData: Array.isArray(itemData) ? itemData.join(",") : undefined,
+				locale, version
 			};
 
 			request(callback, {
@@ -453,22 +437,19 @@ module.exports = {
 					region: options.region,
 					identifier: "static/items/" + id,
 					expires: cacheTimes.LONG,
-					params: params
+					params
 				},
 				path: "/lol/static-data/v3/item/${id}",
 				pathParameters: {
 					region: options.region,
-					id: id
+					id
 				},
 				queryParameters: params
 			});
 		},
 		// Retrieve language strings data
 		languageStrings(callback, locale, version, options) {
-			const params = {
-				locale: locale,
-				version: version
-			};
+			const params = { locale, version };
 
 			request(callback, {
 				region: options.region,
@@ -477,7 +458,7 @@ module.exports = {
 					region: options.region,
 					identifier: "static/language/strings",
 					expires: cacheTimes.LONG,
-					params: params
+					params
 				},
 				path: "/lol/static-data/v3/language-strings",
 				pathParameters: {
@@ -504,10 +485,7 @@ module.exports = {
 		},
 		// Retrieve map data.
 		map(callback, locale, version, options) {
-			const params = {
-				locale: locale,
-				version: version
-			};
+			const params = { locale, version };
 
 			request(callback, {
 				region: options.region,
@@ -516,7 +494,7 @@ module.exports = {
 					region: options.region,
 					identifier: "static/map",
 					expires: cacheTimes.LONG,
-					params: params
+					params
 				},
 				path: "/lol/static-data/v3/map",
 				pathParameters: {
@@ -528,9 +506,8 @@ module.exports = {
 		// Retrieves mastery list.
 		mastery(callback, locale, version, masteryListData, options) {
 			const params = {
-				locale: locale,
-				version: version,
-				masteryListData: Array.isArray(masteryListData) ? masteryListData.join(",") : undefined
+				masteryListData: Array.isArray(masteryListData) ? masteryListData.join(",") : undefined,
+				locale, version
 			};
 
 			request(callback, {
@@ -540,7 +517,7 @@ module.exports = {
 					region: options.region,
 					identifier: "static/masteries",
 					expires: cacheTimes.VERY_LONG,
-					params: params
+					params
 				},
 				path: "/lol/static-data/v3/mastery",
 				pathParameters: {
@@ -550,11 +527,7 @@ module.exports = {
 			});
 		},
 		masteryById(callback, id, locale, version, masteryData, options) {
-			const params = {
-				locale: locale,
-				version: version,
-				masteryData: masteryData
-			};
+			const params = { locale, version, masteryData };
 
 			request(callback, {
 				region: options.region,
@@ -563,12 +536,12 @@ module.exports = {
 					region: options.region,
 					identifier: "static/masteries/" + id,
 					expires: cacheTimes.LONG,
-					params: params
+					params
 				},
 				path: "/lol/static-data/v3/mastery/${id}",
 				pathParameters: {
 					region: options.region,
-					id: id
+					id
 				},
 				queryParameters: params
 			});
@@ -593,8 +566,7 @@ module.exports = {
 		rune(callback, locale, version, runeListData, options) {
 			const params = {
 				runeListData: Array.isArray(runeListData) ? runeListData.join(",") : undefined,
-				locale: locale,
-				version: version
+				locale, version
 			};
 
 			request(callback, {
@@ -604,7 +576,7 @@ module.exports = {
 					region: options.region,
 					identifier: "static/runes",
 					expires: cacheTimes.VERY_LONG,
-					params: params
+					params
 				},
 				path: "/lol/static-data/v3/rune",
 				pathParameters: {
@@ -617,8 +589,7 @@ module.exports = {
 		runeById(callback, id, locale, version, runeData, options) {
 			const params = {
 				runeListData: Array.isArray(runeData) ? runeData.join(",") : undefined,
-				locale: locale,
-				version: version
+				locale, version
 			};
 
 			request(callback, {
@@ -633,7 +604,7 @@ module.exports = {
 				path: "/lol/static-data/v3/rune/${id}",
 				pathParameters: {
 					region: options.region,
-					id: id
+					id
 				},
 				queryParameters: params
 			});
@@ -642,9 +613,7 @@ module.exports = {
 		summonerSpell(callback, locale, version, dataById, spellData, options) {
 			const params = {
 				spellData: Array.isArray(spellData) ? spellData.join(",") : undefined,
-				dataById: dataById,
-				locale: locale,
-				version: version
+				dataById, locale, version
 			};
 
 			request(callback, {
@@ -654,7 +623,7 @@ module.exports = {
 					region: options.region,
 					identifier: "static/summoner_spells",
 					expires: cacheTimes.VERY_LONG,
-					params: params
+					params
 				},
 				path: "/lol/static-data/v3/summoner-spell",
 				pathParameters: {
@@ -667,8 +636,7 @@ module.exports = {
 		summonerSpellById(callback, id, locale, version, spellData, options) {
 			const params = {
 				spellData: Array.isArray(spellData) ? spellData.join(",") : undefined,
-				locale: locale,
-				version: version
+				locale, version
 			};
 
 			request(callback, {
@@ -678,12 +646,12 @@ module.exports = {
 					region: options.region,
 					identifier: "static/summoner_spells/" + id,
 					expires: cacheTimes.LONG,
-					params: params
+					params
 				},
 				path: "/lol/static-data/v3/summoner-spell/${id}",
 				pathParameters: {
 					region: options.region,
-					id: id
+					id
 				},
 				queryParameters: params
 			});
@@ -753,12 +721,12 @@ module.exports = {
 				region: options.region,
 				identifier: "matches/" + matchId,
 				expires: cacheTimes.LONG,
-				params: params
+				params
 			},
 			path: "/lol/v2.2/match/${matchId}",
 			pathParameters: {
 				region: options.region,
-				matchId: matchId
+				matchId
 			},
 			queryParameters: params
 		});
@@ -782,12 +750,12 @@ module.exports = {
 				region: options.region,
 				identifier: "summoner/" + summonerId + "/matchList",
 				expires: cacheTimes.SHORT,
-				params: params
+				params
 			},
 			path: "/lol/v2.2/matchlist/by-summoner/${summonerId}",
 			pathParameters: {
 				region: options.region,
-				summonerId: summonerId
+				summonerId
 			},
 			queryParameters: params
 		});
@@ -797,9 +765,9 @@ module.exports = {
 	 *
 	 * Docs URL: https://developer.riotgames.com/api/methods#!/1080
 	 */
-	stats: {
+	matchlist: {
 		// Get ranked stats by summoner ID.
-		ranked(callback, summonerId, season, version, options) {
+		ranked(callback, accountId, season, version, options) {
 			const params = { season, version };
 
 			request(callback, {
@@ -807,23 +775,21 @@ module.exports = {
 				cache: {
 					enabled: options.cache !== undefined ? options.cache : true,
 					region: options.region,
-					identifier: "summoner/" + summonerId + "/stats/ranked",
+					identifier: "summoner/" + accountId + "/stats/ranked",
 					expires: cacheTimes.SHORT,
-					params: params
+					params
 				},
-				path: "/lol/v1.3/stats/by-summoner/${summonerId}/ranked",
+				path: "/lol/match/v3/matchlists/by-account/${accountId}",
 				pathParameters: {
 					region: options.region,
-					summonerId: summonerId
+					accountId
 				},
 				queryParameters: params
 			});
 		},
 		// Get player stats summaries by summoner ID.
-		summary: (callback, summonerId, season, options) => {
-			const params = {
-				season: season
-			};
+		summary(callback, summonerId, season, options) {
+			const params = { season: season };
 
 			request(callback, {
 				region: options.region,
@@ -832,12 +798,12 @@ module.exports = {
 					region: options.region,
 					identifier: "summoner/" + summonerId + "/stats/summary",
 					expires: cacheTimes.SHORT,
-					params: params
+					params
 				},
 				path: "/lol/v1.3/stats/by-summoner/${summonerId}/summary",
 				pathParameters: {
 					region: options.region,
-					summonerId: summonerId
+					summonerId
 				},
 				queryParameters: params
 			});
@@ -851,7 +817,7 @@ module.exports = {
 	 */
 	summoner: {
 		// Get summoner objects mapped by standardized summoner name for a given list of summoner names.
-		byName: (callback, summonerNames, options) => {
+		byName(callback, summonerNames, options) {
 			request(callback, {
 				region: options.region,
 				cache: {
@@ -869,7 +835,7 @@ module.exports = {
 			});
 		},
 		// Get summoner objects mapped by summoner ID for a given list of summoner IDs.
-		byId: (callback, summonerIds, options) => {
+		byId(callback, summonerIds, options) {
 			request(callback, {
 				region: options.region,
 				cache: {
@@ -887,7 +853,7 @@ module.exports = {
 			});
 		},
 		// Get mastery pages mapped by summoner ID for a given list of summoner IDs
-		masteries: (callback, summonerIds, options) => {
+		masteries(callback, summonerIds, options) {
 			request(callback, {
 				region: options.region,
 				cache: {
@@ -905,7 +871,7 @@ module.exports = {
 			});
 		},
 		// Get summoner names mapped by summoner ID for a given list of summoner IDs.
-		names: (callback, summonerIds, options) => {
+		names(callback, summonerIds, options) {
 			request(callback, {
 				region: options.region,
 				cache: {
@@ -923,7 +889,7 @@ module.exports = {
 			});
 		},
 		// Get rune pages mapped by summoner ID for a given list of summoner IDs.
-		runes: (callback, summonerIds, options) => {
+		runes(callback, summonerIds, options) {
 			request(callback, {
 				region: options.region,
 				cache: {
@@ -949,7 +915,7 @@ module.exports = {
 	 */
 	team: {
 		// Get teams mapped by summoner ID for a given list of summoner IDs.
-		bySummoner: (callback, summonerIds, options) => {
+		bySummoner(callback, summonerIds, options) {
 			request(callback, {
 				region: options.region,
 				cache: {
@@ -967,7 +933,7 @@ module.exports = {
 			});
 		},
 		// Get teams mapped by team ID for a given list of team IDs.
-		byId: (callback, teamIds, options) => {
+		byId(callback, teamIds, options) {
 			request(callback, {
 				region: options.region,
 				cache: {
