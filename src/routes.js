@@ -19,9 +19,23 @@ function register(app) {
 		res.render("home");
 	});
 
+	app.get("/js/background.js", (req, res) => {
+		let backgroundStore = [];
+
+		for(let champion_key in StaticData.champion) {
+			let champion = StaticData.champion[champion_key];
+
+			backgroundStore.push(StaticData.realm.cdn + "/img/champion/splash/" + champion.key + "_0.jpg");
+		}
+
+		res.locals.backgroundStore = JSON.stringify(backgroundStore);
+		res.header("Content-Type", "application/javascript");
+		res.render("background", {layout: false});
+	});
+
 	app.get("/:region/:summonerName", (req, res) => {
-		const region = req.param("region"),
-			  summonerName = req.param("summonerName");
+		const region = req.params.region,
+			  summonerName = req.params.summonerName;
 
 		iowa.renderSummonerPage((data) => {
 			res.locals = data;
@@ -67,19 +81,6 @@ function register(app) {
 				layout: false
 			});
 		}, region, id);
-	});
-
-	app.get("/js/background.js", (req, res) => {
-		let backgroundStore = [];
-
-		for(let champion_key in StaticData.champion) {
-			let champion = StaticData.champion[champion_key];
-
-			backgroundStore.push(StaticData.realm.cdn + "/img/champion/splash/" + champion.key + "_0.jpg");
-		}
-
-		res.locals.backgroundStore = JSON.stringify(backgroundStore);
-		res.render("background", {layout: false});
 	});
 
 	app.use((req, res) => {
