@@ -5,6 +5,7 @@
 
 const Client = require("node-rest-client").Client,
 	  cache = require("./cache").engine,
+	  colors = require("colors"),
 	  log = require("../util/log")("RiotAPI", "magenta"),
 	  RateLimiter = require("limiter").RateLimiter;
 
@@ -94,7 +95,12 @@ module.exports.request = (callback, info) => {
 		args.parameters.api_key = config.get("credentials.riot_api_key");
 
 		let req = client[info.method || "get"](info.fullPath || "https://" + regionData[info.region].host + info.path, args, (data, response) => {
-			log.info("API Request: " + info.path);
+			let path = function(str) {
+				return eval(str.replace("${", "${this."));
+			}.call(info.pathParameters, '`' + info.path + '`');
+
+			log.info(`Request for ${path.cyan}`);
+
 			if(response.statusCode !== 200) {
 				const callbackReply = {
 					type: "error",
