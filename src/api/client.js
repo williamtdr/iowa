@@ -8,12 +8,10 @@ const Client = require("node-rest-client").Client,
 	  log = require("../util/log")("RiotAPI", "magenta"),
 	  RateLimiter = require("limiter").RateLimiter;
 
-let limiters = [];
-for(let condition of global.user_config.get("rate_limiting"))
-	limiters.push(new RateLimiter(condition.requests, condition.reset * 1000));
-
-let request_queue = [],
-	request_counter = -1;
+let limiters = [],
+	request_queue = [],
+	request_counter = -1,
+	config;
 
 const regionData = {
 	"na": {
@@ -93,7 +91,7 @@ module.exports.request = (callback, info) => {
 			if(args.parameters[key] === undefined)
 				delete args.parameters[key];
 
-		args.parameters.api_key = global.user_config.get("credentials.riot_api_key");
+		args.parameters.api_key = config.get("credentials.riot_api_key");
 
 		let req = client[info.method || "get"](info.fullPath || "https://" + regionData[info.region].host + info.path, args, (data, response) => {
 			log.info("API Request: " + info.path);
@@ -175,4 +173,10 @@ module.exports.request = (callback, info) => {
 		retrieve((data) => {
 			callback(data);
 		});
+};
+
+module.exports.init = appConfig => {
+	config = appConfig;
+	for(let condition of config.get("rate_limiting"))
+		limiters.push(new RateLimiter(condition.requests, condition.reset * 1000));
 };

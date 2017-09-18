@@ -18,7 +18,9 @@
 const log = require("./src/util/log")("System", "cyan"),
 	  HTTP = require("./src/interface/http"),
 	  colors = require("colors"),
-	  engine = require("./src/api/cache").engine,
+	  cache = require("./src/api/cache").engine,
+	  core = require("./src/iowa/iowa"),
+	  client = require("./src/api/client"),
 	  Config = require("./src/util/config");
 
 const iowa = {
@@ -34,6 +36,10 @@ const iowa = {
 
 			return process.exit(1);
 		}
+
+		cache.init(this.config);
+		client.init(this.config);
+		core.init(this.config);
 
 		log.info("Starting web server...");
 		this.http = new HTTP();

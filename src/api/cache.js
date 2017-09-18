@@ -15,15 +15,17 @@ const fs = require("fs-extra"),
 	  util = require("../util/util");
 
 let memory_cache = {},
-	table = {}; // cache/info.json
+	table = {},
+	eventHandlersOnInit = [],
+	config; // cache/info.json
 
 // Used by api.js and others to configure cache length
 module.exports.times = {
-	VERY_SHORT: app.config.get("cache.times.very_short"),
-	SHORT: app.config.get("cache.times.short"),
-	MEDIUM: app.config.get("cache.times.medium"),
-	LONG: app.config.get("cache.times.long"),
-	VERY_LONG: app.config.get("cache.times.very_long")
+	VERY_SHORT: 0,
+	SHORT: 0,
+	MEDIUM: 0,
+	LONG: 0,
+	VERY_LONG: 0
 };
 
 const engine = {
@@ -31,16 +33,16 @@ const engine = {
 		log.info("Loading cache information table...");
 
 		try {
-			table = fs.readJSONSync(app.config.get("cache.directory") + "/info.json");
+			table = fs.readJSONSync(config.get("cache.directory") + "/info.json");
 			log.info("Running initial cache cleanup...");
 			engine.checkOutdatedEntries(true);
 		} catch(e) {
 			log.warn("Cache not found or corrupt, initializing...");
 
 			try {
-				fs.emptyDirSync(app.config.get("cache.directory"));
+				fs.emptyDirSync(config.get("cache.directory"));
 			} catch(e) {
-				fs.mkdirsSync(app.config.get("cache.directory"));
+				fs.mkdirsSync(config.get("cache.directory"));
 			}
 
 			engine.saveTable();
@@ -48,7 +50,7 @@ const engine = {
 
 	},
 	saveTable() {
-		fs.outputJSON(app.config.get("cache.directory") + "/info.json", table);
+		fs.outputJSON(config.get("cache.directory") + "/info.json", table);
 	},
 	// Iterates through the table to find cached data for endpoints that
 	// accept custom parameters or multiple values for a single field.
@@ -87,7 +89,7 @@ const engine = {
 			log.info("Cache cleaned up, removed " + entries_removed + " entries.");
 	},
 	fromFile(path, info, onMiss, callback) {
-		fs.readJSON(app.config.get("cache.directory") + "/" + path + ".json", "utf8", (err, data) => {
+		fs.readJSON(config.get("cache.directory") + "/" + path + ".json", "utf8", (err, data) => {
 			if(err) {
 				// Object exists in the table, but not on disk
 				log.warn(path + ".json exists in the table, but not on the disk!");
@@ -102,7 +104,7 @@ const engine = {
 		});
 	},
 	saveFile: (id, data) => {
-		fs.outputJSON(app.config.get("cache.directory") + "/" + id + ".json", data, (err) => {
+		fs.outputJSON(config.get("cache.directory") + "/" + id + ".json", data, (err) => {
 			if(err)
 				console.warn("Encountered a problem when trying to save the cache for an API request: " + err);
 		});
@@ -148,7 +150,7 @@ const engine = {
 		let id,
 			firstPass = true;
 
-		if(data.type === "error" && !app.config.get("cache.save_failures"))
+		if(data.type === "error" && !config.get("cache.save_failures"))
 			return false;
 
 		id = (info.region || "global") + "/" + info.identifier; // Case 1: Simple identifier, no dynamic or params
@@ -190,9 +192,25 @@ const engine = {
 		engine.saveTable();
 		memory_cache[id] = data;
 		engine.saveFile(id, data);
+	},
+	addInitEventHandler(fn) {
+		eventHandlersOnInit.push(fn);
+	},
+	init(appConfig) {
+		config = appConfig;
+
+		module.exports.times = {
+			VERY_SHORT: config.get("cache.times.very_short"),
+			SHORT: config.get("cache.times.short"),
+			MEDIUM: config.get("cache.times.medium"),
+			LONG: config.get("cache.times.long"),
+			VERY_LONG: config.get("cache.times.very_long")
+		};
+
+		setInterval(engine.checkOutdatedEntries, (module.exports.times.MEDIUM * 1000));
+		for(let fn of eventHandlersOnInit)
+			fn(module.exports.times);
 	}
 };
 
 module.exports.engine = engine;
-
-setInterval(engine.checkOutdatedEntries, (module.exports.times.MEDIUM * 1000));

@@ -6,17 +6,16 @@
 const api = require("./../api/api"),
 	  regions = require("./../api/client").regions,
 	  cache = require("./../api/cache"),
-	  times = cache.times,
 	  cacheEngine = cache.engine,
 	  StaticData = require("./StaticData"),
 	  Config = require("../util/config"),
-	  app = require("../../app"),
 	  log = require("../util/log")("IoWA", "green"),
 	  RankedChampionStats = require("./class/RankedChampionStats"),
 	  SummonerProfile = require("./class/SummonerProfile"),
 	  RankedWithMastery = require("./algorithm/RankedWithMastery");
 
-let ChampionSpotlights;
+let ChampionSpotlights,
+	config;
 
 function preflight(region, name, id) {
 	if(region !== undefined && !regions[region])
@@ -36,12 +35,12 @@ function refreshCoreInformation() {
 
 	api.static_data.realm((data) => {
 		StaticData.data.realm = data;
-	}, { region: app.config.get("default_region") });
+	}, { region: config.get("default_region") });
 	api.static_data.championAll((data) => {
 		StaticData.data.champion = data.data;
 		for(let champion_name in ChampionSpotlights.data)
 			StaticData.data.champion[StaticData.championNameToId(champion_name)].youtube_link = ChampionSpotlights.data[champion_name];
-	}, undefined, undefined, true, ["info", "stats", "image", "tags", "spells"], { region: app.config.get("default_region") });
+	}, undefined, undefined, true, ["info", "stats", "image", "tags", "spells"], { region: config.get("default_region") });
 }
 
 module.exports = {
@@ -106,10 +105,15 @@ module.exports = {
 		}, id, {
 			region: region
 		});
+	},
+	init(appConfig) {
+		config = appConfig;
+
+		cacheEngine.loadTable();
+		ChampionSpotlights = new Config("data/champion_spotlights.json");
+		refreshCoreInformation();
+		cacheEngine.addInitEventHandler(times => {
+			setInterval(refreshCoreInformation, (times.VERY_LONG * 1000));
+		})
 	}
 };
-
-setInterval(refreshCoreInformation, (times.VERY_LONG * 1000));
-cacheEngine.loadTable();
-ChampionSpotlights = new Config("data/champion_spotlights.json");
-refreshCoreInformation();
