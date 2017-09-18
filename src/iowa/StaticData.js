@@ -6,8 +6,6 @@
 module.exports = {
 	data: {},
 	championNameToId: (name) => {
-		console.log(module.exports.data);
-
 		for(let id in module.exports.data.champion)
 			if(module.exports.data.champion[id].name === name)
 				return id;

@@ -38,8 +38,11 @@ function refreshCoreInformation() {
 	}, { region: config.get("default_region") });
 	api.static_data.championAll((data) => {
 		StaticData.data.champion = data.data;
-		for(let champion_name in ChampionSpotlights.data)
-			StaticData.data.champion[StaticData.championNameToId(champion_name)].youtube_link = ChampionSpotlights.data[champion_name];
+		for(let champion_name in ChampionSpotlights.data) {
+			let cId = StaticData.championNameToId(champion_name);
+			if(cId)
+				StaticData.data.champion[cId].youtube_link = ChampionSpotlights.data[champion_name];
+		}
 	}, undefined, undefined, true, ["info", "stats", "image", "tags", "spells"], { region: config.get("default_region") });
 }
 
