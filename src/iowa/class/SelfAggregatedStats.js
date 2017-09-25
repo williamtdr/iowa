@@ -6,9 +6,10 @@
 
 const StaticData = require("./../StaticData").data;
 
-module.exports = class RankedChampionStats {
-	constructor(data) {
-		this.id = data.id;
+class SelfAggregatedStats {
+	constructor(id) {
+		this.id = id;
+		this.matchIds = [];
 		this.outcome = {
 			won: 0,
 			lost: 0,
@@ -59,15 +60,29 @@ module.exports = class RankedChampionStats {
 			average: (0 / 1).toFixed(2)
 		};
 
+		this.name = "";
+		this.title = "";
+		this.stats = "";
+		this.info = "";
+		this.spells = [];
+		this.youtube_link = "";
+		this.imageURL = "";
+		this.splashURL = "";
+		this.tags = [];
+
 		const champion_info = StaticData.champion[this.id.toString()];
-		this.name = champion_info.name;
-		this.title = champion_info.title;
-		this.stats = champion_info.stats;
-		this.info = champion_info.info;
-		this.spells = champion_info.spells;
-		this.youtube_link = champion_info.youtube_link;
-		this.imageURL = StaticData.realm.cdn + "/"+ StaticData.realm.v + "/img/champion/" + champion_info.image.full;
-		this.splashURL = StaticData.realm.cdn + "/img/champion/splash/" + champion_info.key + "_0.jpg";
-		this.tags = champion_info.tags;
+		if(typeof champion_info !== "undefined") {
+			this.name = champion_info.name;
+			this.title = champion_info.title;
+			this.stats = champion_info.stats;
+			this.info = champion_info.info;
+			this.spells = champion_info.spells;
+			this.youtube_link = champion_info.youtube_link;
+			this.imageURL = StaticData.realm.cdn + "/"+ StaticData.realm.v + "/img/champion/" + champion_info.image.full;
+			this.splashURL = StaticData.realm.cdn + "/img/champion/splash/" + champion_info.key + "_0.jpg";
+			this.tags = champion_info.tags;
+		}
 	}
-};
+}
+
+module.exports = SelfAggregatedStats;

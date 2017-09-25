@@ -81,27 +81,12 @@ const client = new Client({
 
 module.exports.request = (callback, info) => {
 	function retrieve(callback) {
-		let args = {
-			path: info.pathParameters || {},
-			parameters: info.queryParameters || {}
-		}, key;
-
-		for(key in args.path)
-			if(args.path[key] === undefined)
-				delete args.path[key];
-
-		for(key in args.parameters)
-			if(args.parameters[key] === undefined)
-				delete args.parameters[key];
-
-		args.parameters.api_key = config.get("credentials.riot_api_key");
-
-		let req = client[info.method || "get"](info.fullPath || "https://" + regionData[info.region].host + info.path, args, (data, response) => {
+		function responseHandler(data, response) {
 			let path = function(str) {
 				return eval(str.replace("${", "${this."));
 			}.call(info.pathParameters, '`' + info.path + '`');
 
-			log.info(`Request for ${path.cyan}`);
+			log.info(`Request for ${path.cyan.replace("&api_key=" + config.get("credentials.riot_api_key"), "")}`);
 
 			if(response.statusCode !== 200) {
 				const callbackReply = {
@@ -112,29 +97,53 @@ module.exports.request = (callback, info) => {
 				switch(response.statusCode) {
 					case 400:
 						callbackReply.text = "Bad request.";
-					break;
+						break;
 					case 403:
 						callbackReply.text = "Authorization failure.";
 						log.warn("Warning: Received an authentication error from Riot's API servers. Make sure your API key is correct.");
-					break;
+						break;
 					case 404:
 						callbackReply.text = "Resource not found.";
-					break;
+						break;
 					case 429:
 						const retry = response.headers["retry-after"] * 1000;
 
 						log.warn(`Rate limited for resource, retrying in ${moment(new Date(Date.now() + retry)).fromNow(false)}`);
 						return setTimeout(() => retrieve(callback), retry);
-					break;
+						break;
 					case 500:
 						callbackReply.text = "The API encountered an internal server error.";
-					break;
+						break;
 				}
 
 				callback(callbackReply);
 			} else
 				callback(data);
-		});
+		}
+
+		let args = {
+			path: typeof info.pathParameters !== "undefined" ? info.pathParameters :  {},
+			parameters: typeof info.queryParameters !== "undefined" ? info.queryParameters :  {},
+		}, key;
+
+		for(key in args.path)
+			if(args.path[key] === undefined)
+				delete args.path[key];
+
+		for(key in args.parameters)
+			if(args.parameters[key] === undefined)
+				delete args.parameters[key];
+
+		if(!args.parameters)
+			info.path += "&api_key=" + config.get("credentials.riot_api_key");
+		else
+			args.parameters.api_key = config.get("credentials.riot_api_key");
+
+		let req;
+		if(args.parameters && args.path)
+			req = client[info.method || "get"](info.fullPath || "https://" + regionData[info.region].host + info.path, args, responseHandler);
+		else
+			req = client[info.method || "get"](info.fullPath || "https://" + regionData[info.region].host + info.path, responseHandler);
 
 		req.on("requestTimeout", (req) => {
 			callback({

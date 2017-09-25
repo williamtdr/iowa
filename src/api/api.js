@@ -352,27 +352,17 @@ module.exports = {
 	static_data: {
 		// Retrieves champion list.
 		championAll(callback, locale, version, dataById, champData, options) {
-			const params = {
-				locale: locale,
-				version: version,
-				dataById: dataById,
-				champData: Array.isArray(champData) ? champData.join(",") : undefined
-			};
-
 			request(callback, {
 				region: options.region,
 				cache: {
 					enabled: options.cache !== undefined ? options.cache : true,
 					region: options.region,
 					identifier: "static/champions",
-					expires: cacheTimes.VERY_LONG,
-					params
+					expires: cacheTimes.VERY_LONG
 				},
-				path: "/lol/static-data/v3/champions",
-				pathParameters: {
-					region: options.region
-				},
-				queryParameters: params
+				path: "/lol/static-data/v3/champions?locale=en_US&dataById=" + dataById + "&tags=" + champData.join("&tags="),
+				pathParameters: false,
+				queryParameters: false
 			});
 		},
 		// Retrieves a champion by its id.

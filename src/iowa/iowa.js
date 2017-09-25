@@ -11,7 +11,7 @@ const api = require("./../api/api"),
 	  StaticData = require("./StaticData"),
 	  Config = require("../util/config"),
 	  log = require("../util/log")("IoWA", "green"),
-	  RankedChampionStats = require("./class/RankedChampionStats"),
+	  SelfAggregatedStats = require("./class/SelfAggregatedStats"),
 	  SummonerProfile = require("./class/SummonerProfile"),
 	  RankedWithMastery = require("./algorithm/RankedWithMastery");
 
@@ -59,7 +59,7 @@ module.exports = {
 				return callback(data);
 
 			callback(new SummonerProfile(data, region));
-		}, [urlencode(name)], { region: region });
+		}, [urlencode(name)], { region });
 	},
 	renderDataPage: (callback, region, id) => {
 		let response = {},
@@ -82,8 +82,6 @@ module.exports = {
 		};
 
 		api.matchlist.ranked((data) => {
-			console.log(data);
-
 			if(data.type === "error" && data.code === 404) {
 				response.error = { text: "No ranked matches found for this player." };
 
@@ -91,14 +89,24 @@ module.exports = {
 				return callback(response);
 			}
 
-			/*
-			for(let match of data) {
+			for(let match of data.matches) {
 				if(match === null || match.champion === 0)
 					continue;
 
-				ranked_stats[match.champion] = new RankedChampionStats(match.champion);
+				let s = new SelfAggregatedStats(match.champion);
+				s.matchIds.push(match.gameId);
+				ranked_stats[match.champion] = s;
 			}
-			*/
+
+			log.info(`Aggregating stats from ${Object.values(ranked_stats).length} champions on ${Object.values(ranked_stats).reduce((sum, v) => sum + v.matchIds.length, 0)} matches.`);
+
+			for(let cId in ranked_stats) {
+				let c = ranked_stats[cId];
+
+				for(let m of c.matchIds) {
+					log.info(`Fetching match: ${m}`);
+				}
+			}
 
 			checkSufficentData();
 		}, id, undefined, undefined, { region: region });
