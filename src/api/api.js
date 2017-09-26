@@ -699,26 +699,21 @@ module.exports = {
 	 *
 	 * Docs URL: https://developer.riotgames.com/api/methods#!/1064
 	 */
-	match(callback, matchId, includeTimeline, options) {
-		const params = {
-			includeTimeline: includeTimeline
-		};
-
+	match(callback, matchId, options) {
 		request(callback, {
 			region: options.region,
 			cache: {
 				enabled: options.cache !== undefined ? options.cache : true,
 				region: options.region,
 				identifier: "matches/" + matchId,
-				expires: cacheTimes.LONG,
-				params
+				expires: cacheTimes.LONG
 			},
-			path: "/lol/v2.2/match/${matchId}",
+			path: "/lol/match/v3/matches/{matchId}",
 			pathParameters: {
 				region: options.region,
 				matchId
 			},
-			queryParameters: params
+			queryParameters: false
 		});
 	},
 	/**

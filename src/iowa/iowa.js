@@ -100,23 +100,26 @@ module.exports = {
 
 			log.info(`Aggregating stats from ${Object.values(ranked_stats).length} champions on ${Object.values(ranked_stats).reduce((sum, v) => sum + v.matchIds.length, 0)} matches.`);
 
+			let completedMatches = [];
 			for(let cId in ranked_stats) {
 				let c = ranked_stats[cId];
 
 				for(let m of c.matchIds) {
 					log.info(`Fetching match: ${m}`);
+
+					api.match(data => {
+						console.log(data);
+					}, m, { region });
 				}
 			}
 
 			checkSufficentData();
-		}, id, undefined, undefined, { region: region });
+		}, id, undefined, undefined, { region });
 
 		api.championMastery.getAll((data) => {
 			champion_mastery = data;
 			checkSufficentData();
-		}, id, {
-			region: region
-		});
+		}, id, { region });
 	},
 	init(appConfig) {
 		config = appConfig;
