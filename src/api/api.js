@@ -708,12 +708,11 @@ module.exports = {
 				identifier: "matches/" + matchId,
 				expires: cacheTimes.LONG
 			},
-			path: "/lol/match/v3/matches/{matchId}",
+			path: "/lol/match/v3/matches/${matchId}",
 			pathParameters: {
-				region: options.region,
 				matchId
 			},
-			queryParameters: false
+			queryParameters: {}
 		});
 	},
 	/**
@@ -752,24 +751,24 @@ module.exports = {
 	 */
 	matchlist: {
 		// Get ranked stats by summoner ID.
-		ranked(callback, accountId, season, version, options) {
-			const params = { season, version };
+		ranked(callback, accountId, beginIndex, queue, options) {
+			beginIndex = beginIndex || 0;
 
 			request(callback, {
 				region: options.region,
 				cache: {
 					enabled: options.cache !== undefined ? options.cache : true,
 					region: options.region,
-					identifier: "summoner/" + accountId + "/stats/ranked",
+					identifier: "summoner/" + accountId + "/stats/list/" + beginIndex,
 					expires: cacheTimes.SHORT,
-					params
+					params: {
+						beginIndex,
+						queue
+					}
 				},
-				path: "/lol/match/v3/matchlists/by-account/${accountId}",
-				pathParameters: {
-					region: options.region,
-					accountId
-				},
-				queryParameters: params
+				path: "/lol/match/v3/matchlists/by-account/" + accountId + "?beginIndex=" + beginIndex + "&queue=" + queue.join("&queue="),
+				pathParameters: false,
+				queryParameters: false
 			});
 		},
 		// Get player stats summaries by summoner ID.

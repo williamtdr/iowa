@@ -122,8 +122,8 @@ module.exports.request = (callback, info) => {
 		}
 
 		let args = {
-			path: typeof info.pathParameters !== "undefined" ? info.pathParameters :  {},
-			parameters: typeof info.queryParameters !== "undefined" ? info.queryParameters :  {},
+			path: typeof info.pathParameters !== "undefined" ? info.pathParameters : {},
+			parameters: typeof info.queryParameters !== "undefined" ? info.queryParameters : {},
 		}, key;
 
 		for(key in args.path)
@@ -141,7 +141,7 @@ module.exports.request = (callback, info) => {
 
 		let req;
 		if(args.parameters && args.path)
-			req = client[info.method || "get"](info.fullPath || "https://" + regionData[info.region].host + info.path, args, responseHandler);
+			req = client[info.method||"get"](info.fullPath||"https://" + regionData[info.region].host + info.path, args, responseHandler);
 		else
 			req = client[info.method || "get"](info.fullPath || "https://" + regionData[info.region].host + info.path, responseHandler);
 

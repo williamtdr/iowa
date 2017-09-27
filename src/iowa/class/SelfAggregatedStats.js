@@ -29,9 +29,9 @@ class SelfAggregatedStats {
 			dealt: 0,
 			taken: 0,
 			magic: 0,
+			physical: 0,
 			averageDealt: (0 / 1).toFixed(2),
 			averageTaken: (0 / 1).toFixed(2),
-			physical: 0,
 			ratio: (0 / (0 || 1)).toFixed(2)
 		};
 		this.creepScore = {
