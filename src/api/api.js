@@ -706,7 +706,10 @@ module.exports = {
 				enabled: options.cache !== undefined ? options.cache : true,
 				region: options.region,
 				identifier: "matches/" + matchId,
-				expires: cacheTimes.LONG
+				expires: cacheTimes.LONG,
+				params: {
+					matchId
+				}
 			},
 			path: "/lol/match/v3/matches/${matchId}",
 			pathParameters: {

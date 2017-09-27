@@ -108,7 +108,7 @@ module.exports.request = (callback, info) => {
 					case 429:
 						const retry = response.headers["retry-after"] * 1000;
 
-						log.warn(`Rate limited for resource, retrying in ${moment(new Date(Date.now() + retry)).fromNow(false)}`);
+						log.warn(`Rate limited for resource, retrying ${moment(new Date(Date.now() + retry)).fromNow(false)}`);
 						return setTimeout(() => retrieve(callback), retry);
 						break;
 					case 500:

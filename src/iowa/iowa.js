@@ -77,18 +77,31 @@ module.exports = {
 			if(!champion_mastery || JSON.stringify(ranked_stats) === "{}")
 				return;
 
-			if(completedMatches.length !== expectingMatches)
+			if(completedMatches.length !== expectingMatches || matchListReturned !== PAGES)
 				return;
+
+			console.log("think we're done here!");
+			console.log("completed matches: " + completedMatches.length);
+			console.log("expecting matches: " + expectingMatches);
+			console.log("i: " + matchListReturned);
+			console.log("pages: " + PAGES);
 
 			response = RankedWithMastery(ranked_stats, champion_mastery);
 
-			if(!responded)
+			if(!responded) {
+				responded = true;
 				callback(response);
+			} else
+				console.log("oops... :(");
 		}
 
-		const PAGES = 5;
-		for(let i = 0; i < PAGES; i++)
+		const PAGES = 10;
+		let i,
+			matchListReturned = 0;
+		for(i = 0; i < PAGES; i++)
 			api.matchlist.ranked((data) => {
+				matchListReturned++;
+
 				if(data.type === "error" && data.code === 404) {
 					response.error = { text: "No ranked matches found for this player." };
 
@@ -100,10 +113,12 @@ module.exports = {
 					if(match === null || match.champion === 0)
 						continue;
 
-					let s = new SelfAggregatedStats(match.champion);
-					s.matchIds.push(match.gameId);
-					ranked_stats[match.champion] = s;
+					if(!ranked_stats[match.champion])
+						ranked_stats[match.champion] = new SelfAggregatedStats(match.champion);
+
+					ranked_stats[match.champion].matchIds.push(match.gameId);
 				}
+
 
 				expectingMatches += Object.values(ranked_stats).reduce((sum, v) => sum + v.matchIds.length, 0);
 				if(i === PAGES)
@@ -155,7 +170,7 @@ module.exports = {
 										ranked_stats[championId].damage.averageDealt = parseFloat((ranked_stats[championId].damage.dealt / ranked_stats[championId].outcome.played).toFixed(2));
 										ranked_stats[championId].damage.ratio = parseFloat((ranked_stats[championId].damage.dealt / (ranked_stats[championId].damage.taken || 1)).toFixed(2));
 										ranked_stats[championId].creepScore.total += stats.totalMinionsKilled;
-										ranked_stats[championId].creepScore.average = (stats.totalMinionsKilled / ranked_stats[championId].outcome.played).toFixed(2);
+										ranked_stats[championId].creepScore.average = (ranked_stats[championId].creepScore.total / ranked_stats[championId].outcome.played).toFixed(2);
 										ranked_stats[championId].gold.total += stats.goldEarned;
 										ranked_stats[championId].gold.average = parseFloat((ranked_stats[championId].gold.total / ranked_stats[championId].outcome.played).toFixed(2));
 										ranked_stats[championId].accomplishments.totalDoubleKills += stats.doubleKills;
